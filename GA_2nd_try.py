@@ -50,7 +50,7 @@ env.state_to_log() # checks environment state
 
 
 #hyperparameters
-n_bits = (env.get_num_sensors()+1)*n_hidden_neurons + (n_hidden_neurons+1)*5
+n_bits = (env.get_num_sensors()+1)*n_hidden_neurons + (n_hidden_neurons+1)*5 #whatsupp with this instruction
 n_pop = 100
 n_iter = 5
 n_candidates = 3
@@ -66,16 +66,20 @@ def create():
     print(pop)
     return pop
 
+#maybe we should take care of normalization(?)) (w'll see)
+
 #lifted from opt._spec._demo.py, run the simulation, returns fitness function
 def evaluate(chrom):
     f,p,e,t = env.play(pcont=chrom)
     return f
+
 
 #tournament, getting the best chromosomes from the population
 def tournament (pop):
     #we choose n_candidates of candidates
     candidates = random.choices(pop, k=n_candidates)
     #we find the strongest of candidates
+    #this piece of code could be improved and made short if we want. Should not be hard with a lamba and a sorted list.
     winner = candidates[0]
     top = evaluate(winner)
     for chrom in candidates[1:]:
@@ -86,15 +90,17 @@ def tournament (pop):
 
 #crossover, creating two children of two parents
 def crossover(p1, p2):
+    
 	# children are copies of parents by default
 	c1, c2 = p1.copy(), p2.copy()
 	# check for recombination
 	if random.random() < r_cross:
 		# select crossover point that is not on the end of the string
 		pt = random.randint(1, len(p1)-2)
+        
 		# perform crossover
-		c1 = p1[:pt] + p2[pt:]
-		c2 = p2[:pt] + p1[pt:]
+		c1 = np.concatenate((p1[:pt],p2[pt:]),axis=None)
+		c2 = np.concatenate((p2[:pt],p1[pt:]),axis=None)
 	return [c1, c2]
 
 # mutation, adding a random number to some of the numbers in the chrom
@@ -121,6 +127,7 @@ def main():
     #iteratating over generations
     count = 0
     for gen in range (n_iter):
+        print("GEN is : " , gen)
         count +=1
 
         if count == 1:
@@ -134,16 +141,23 @@ def main():
 
         #I'm kinda shady on the details, but I think now we need to pick n_pop parents - so that our generation isn't getting smaller
         #this way, we might pick the same parent many times, I think. I don't think it's a problem, but I might understand it wrong.
-        parents = []
+        
+        #parents = []
+        
+        parents = pop #line not to make it run forever
+        """print("++++++++++++")
         for n in range (n_pop):
             parents.append(tournament(pop))
-
+        print("++++++++++++++")"""
         #now we will create a new generation
-        children = list()
-        for i in range(0, n_pop-1, 2):
+        children = pop
+        for i in range(0, n_pop, 2):
             # get selected parents in pairs (no need to shuffle or introduce randomness, since the list is already de facto randomly shuffled
-            p1, p2 = parents[i], parents[i + 1]
+            
+            p1= parents[i]
+            p2 = parents[i + 1]
             # crossover and mutation
+            
             for c in crossover(p1, p2):
                 # mutation
                 mutation(c)
@@ -151,7 +165,9 @@ def main():
                 for x in c:
                     limits(x)
                 # store for next generation
-                children.append(c)
+                children = np.append(children, c)
+                
+
 
        # print("Sum of scores of the parents",sum(scores))
        # chi = 0
