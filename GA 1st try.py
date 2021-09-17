@@ -1,26 +1,89 @@
-#I'm messing around with the genetic algorithm as seen on: https://machinelearningmastery.com/simple-genetic-algorithm-from-scratch-in-python/
-#gonna write and run it line by line, so I'll get the grip on it
 import random
+import numpy as np
+import time
+import glob, os
 
-#hyperparameters
-n_bits = 5
-n_pop = 10
-n_iter = 5
-n_candidates = 3
-r_cross = 0.9
-r_mut = 1/n_bits #the usual, as it says in the tutorial.
+import sys
+
+sys.path.append("C:/Users/ASUS/Vs_workspace/VU/Evolutionary_Comp/evoman_framework/evoman")
+from environment import Environment
+#from player import Player
+#from player import Bullet_p
+from demo_controller import player_controller
+
+
+
+#Environment Attributes
+number_of_enemies = 1
+n_hidden_neurons = 10
+experiment_name = 'individual_demo'
+if not os.path.exists(experiment_name):
+    os.makedirs(experiment_name)
+
+#Chrom Attributes
+chrom_len = 5
+
+
+# initializing environment
+env = Environment(experiment_name=experiment_name,
+                  enemies=[number_of_enemies],
+                  playermode="ai",
+                  player_controller=player_controller(n_hidden_neurons),
+                  enemymode="static",
+                  level=2,
+                  speed="fastest")
+
+env.state_to_log() # checks environment state
+
+####   Optimization for controller solution  ###
+#(genetic algorithm seen on: https://machinelearningmastery.com/simple-genetic-algorithm-from-scratch-in-python/)
+
+ini = time.time()  # sets time marker
+
 
 #functions
 
-#creating a faux evaluation function.
-#In our case, it will be the result of the game (which includes both players life and time) of the agent steered by the neural network with wieghts defined by particular chromosome
 
-def evaluate(chrom):
-    #basically binary to dec, just to have something for now
-    result = 0
-    for i in range (len(chrom)):
-        result += chrom[i] * 2**i
-    return result
+#creates a chrom (numpyarray) with "chrom_len" size 
+def create_chrom():
+    chrom = np.random.uniform(-1, 1, chrom_len)
+    return chrom
+
+#create a population (list of chroms)
+def generate_chrom_list(chrom_list_len):
+    chrom_list=[]
+    for _ in range(chrom_list_len):
+        chrom = create_chrom()
+        chrom_list.append(chrom)
+    #print("population: ", chrom_list)
+    return chrom_list
+
+# runs simulation
+def simulation(env,x):
+    f,p,e,t = env.play(pcont=x)
+    return f
+
+# normalizes
+def norm(x, pfit_pop):
+
+    if ( max(pfit_pop) - min(pfit_pop) ) > 0:
+        x_norm = ( x - min(pfit_pop) )/( max(pfit_pop) - min(pfit_pop) )
+    else:
+        x_norm = 0
+    if x_norm <= 0:
+        x_norm = 0.0000000001
+    return x_norm
+
+# evaluation
+def evaluate(x):
+    return np.array(list(map(lambda y: simulation(env,y), x)))
+
+
+if __name__ == '__main__':
+    population = generate_chrom_list(5)
+    
+    print(evaluate(population))
+'''
 
 #tournament, getting the best chromosomes from the population
 def tournament (pop):
@@ -115,3 +178,4 @@ for gen in range (n_iter):
     print("sum of scores of the children", chi)
     print("gain of generation ", count, chi-sum(scores))
 
+'''

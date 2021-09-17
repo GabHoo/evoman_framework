@@ -282,7 +282,7 @@ class Bullet_e1(pygame.sprite.Sprite):
 
 
 
-    image = pygame.image.load('evoman/images/bullet2_l.png')
+    image = pygame.image.load('VU/Evolutionary_Comp/evoman_framework/evoman/images/bullet2_l.png')
 
     def __init__(self, location, direction, n_twist, *groups):
         super(Bullet_e1, self).__init__(*groups)

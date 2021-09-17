@@ -8,18 +8,24 @@ import sys
 import numpy
 import struct
 import binascii
-
-import Base
+import pygame
+import Base 
 from Base.SpriteConstants import *
 from Base.SpriteDefinition import *
 from sensors import *
-
+import os
 
 # player proctile
 class Bullet_p(pygame.sprite.Sprite):
+    cwd = os.getcwd()
 
 
-    image = pygame.image.load('evoman/images/bullet_r.png')
+    print ("HEY  : ")
+    print ("HEY  : ")
+    print ("HEY  : ")
+
+    print ("HEY  : ",cwd)
+    image = pygame.image.load('VU/Evolutionary_Comp/evoman_framework/evoman/images/bullet_r.png')
 
     def __init__(self, location, direction, n_twist, *groups):
         super(Bullet_p, self).__init__(*groups)
