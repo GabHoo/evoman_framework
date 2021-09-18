@@ -1,15 +1,3 @@
-#This is my second try of creating a GA, this time it acctually plays the game to evaluate chromosomes
-#There is some issu with the code: after running it for a while, I'm able to get the followiing error:
-#File "C:/Users/Andrzej/PycharmProjects/EA_new_git/evoman_framework/GA_2nd_try.py", line 91, in crossover
-#    c1 = p1[:pt] + p2[pt:]
-#ValueError: operands could not be broadcast together with shapes (255,) (10,)
-
-#I understand that there is something wrong with the data structures, so that the crossover was fed a chromosome and a population to cross.
-#I can't find the mistake - could you help?
-
-
-
-
 
 import sys
 import os
@@ -25,8 +13,8 @@ headless = True
 if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
-
-experiment_name = 'GA_2nd_try'
+#I changed it to 3rd_try name
+experiment_name = 'GA_3rd_try'
 if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
 
@@ -154,7 +142,7 @@ def main():
             parents.append(tournament(pop))
         """print("++++++++++++++")"""
         #now we will create a new generation
-        children = list()
+        children = []
         for i in range(0, n_pop, 2):
             # get selected parents in pairs (no need to shuffle or introduce randomness, since the list is already de facto randomly shuffled            p1 = parents[i]
             p1, p2 = parents[i], parents[i + 1]
@@ -167,8 +155,10 @@ def main():
                 for x in c:
                     limits(x)
                 # store for next generation
-                children = np.insert(children, len(children)-1, c, axis=0)
-                #print(len(children), "LEN CHILDREN")
+                #^Basicly I changed it to append array(c) to the children list
+                children.append(np.array(c))
+        #and then I transformed the list into a big ass array (same shape as pop) to keep the iterations going        
+        children = np.stack(children, axis = 0)
 
 
 main()
