@@ -224,7 +224,7 @@ def natural_selection(parents, offspring):
     return np.array(survivors)
 
 """def natural_selection(parents, offspring):
-    initial_population = np.concatenate((parents, offspring), axis=0)
+    initial_population = np.vstack((parents, offspring))
     random.shuffle(initial_population) 
     desired_size = int(len(initial_population) / 2)
     survivors = []
