@@ -109,6 +109,10 @@ def evaluate(chromosome):
     f,p,e,t = env.play(pcont=chromosome)
     return f
 
+# evaluation
+def evaluate_pop(x):
+    return np.array(list(map(lambda y: evaluate(y), x)))
+
 # parent_selection(population) returns a new population of selected parents.
 # New population size is equal to input population size.
 # Parents are chosen semi-randomly: a number (n_candidates_best hyperparameter)
@@ -144,6 +148,15 @@ def parent_selection(population):
         random.shuffle(parents)
     return np.array(parents)
 
+"""def parent_selection(population):
+    parents = []
+    for n in range(n_pop):
+        candidates = random.choices(population, k=n_candidates_parents)
+        f_candidates = evaluate_pop(candidates)
+        winner = np.argmax(f_candidates)
+        parents.append(candidates[winner])
+    return np.array(parents)
+    """
 #crossover(p1, p2) returns two chromosomes, both of which are children of p1 and p2
 def crossover (p1, p2):
     # children are copies of parents by default
@@ -210,6 +223,18 @@ def natural_selection(parents, offspring):
         random.shuffle(survivors)
     return np.array(survivors)
 
+"""def natural_selection(parents, offspring):
+    initial_population = np.concatenate((parents, offspring), axis=0)
+    random.shuffle(initial_population) 
+    desired_size = int(len(initial_population) / 2)
+    survivors = []
+    for n in range(desired_size):  # iterating desired_size times
+        candidates = random.choices(initial_population, k=n_candidates_natural)  # choosing k candidates, at random
+        f_candidates = evaluate_pop(candidates)
+        winner = np.argmax(f_candidates)
+        survivors.append(candidates[winner])
+    return np.array(survivors)
+"""
 
 
 
