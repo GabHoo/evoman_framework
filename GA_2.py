@@ -25,7 +25,7 @@ headless = True
 if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
-experiment_name = 'GA_4th_try'
+experiment_name = 'GA_2'
 if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
 
@@ -38,14 +38,16 @@ env = Environment(experiment_name=experiment_name,
                   player_controller=player_controller(n_hidden_neurons),
                   enemymode="static",
                   level=2,
-                  speed="fastest")
+                  speed="fastest",
+                  randomini="yes",
+                  logs="off")
 
 # default environment fitness is assumed for experiment
 env.state_to_log()  # checks environment state
 
 """3. Hyperparameters"""
 n_bits = (env.get_num_sensors() + 1) * n_hidden_neurons + (n_hidden_neurons + 1) * 5
-n_pop = 16  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+n_pop = 4  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
 #^ n_pop gotta be even, otherwise we'll get an error while trying to pair chromosomes for crossover!
 n_candidates_parents = 5  # number of candidates to be selected during the parents selection
 
@@ -89,7 +91,7 @@ def selection(population):
         candidates = random.choices(population, k=n_candidates_parents)
         f_candidates = evaluate_pop(candidates)
         winner = np.argmax(f_candidates)
-        print("\n", "first lucky survivor has a respectable fitness of: " , max(f_candidates), "\n")
+        #print("\n", "first lucky survivor has a respectable fitness of: " , max(f_candidates), "\n")
         parents.append(candidates[winner])
     random.shuffle(parents)
     return np.array(parents)
@@ -153,24 +155,65 @@ def create_offspring(survivors):
 
 
 def main():
-
+    improvment = -1 #we set this to -1 bc the first imrpovment will for sure take place (line 206)
     count = 0
+
+    pop = create()
+    fit_pop = evaluate_pop(pop)
+    best_index = np.argmax(fit_pop)
+    global_best_f = fit_pop[best_index] #its the global best bc it is the first one
+    mean = np.mean(fit_pop)
+    std = np.std(fit_pop)
+    global_best_individual=pop[best_index]
+
+    print("\nGeneration: ", count)
+    
+
+    file_aux  = open(experiment_name+'/results.csv','w')
+    file_aux.write('\n\ngen best mean std')
+    print( '\n GENERATION '+str(count)+' Best: '+str(round(fit_pop[best_index],6))+' Mean: '+str(round(mean,6))+' Standard Deviation'+str(round(std,6)))
+    file_aux.write('\n'+str(count)+' '+str(round(global_best_f,6))+' '+str(round(mean,6))+' '+str(round(std,6))   )
+    
+
+
+
     while count < n_iter:
         count+=1
-        if count ==1:
-            pop = create()
-        else:
-            pop = new_gen
-        print("Generation: ", count)
+        
+        print("\nGeneration: ", count)
 
-        print("\n", "running the game for selecting parents","\n")
+        #evolution process
+
+        print("\nrunning parent's selection..","\n")
         survivors = selection(pop)
 
-        print("now we mateee :)")
+        print("creating offspring..")
         offspring = create_offspring(survivors)
 
         new_gen = np.vstack((survivors,offspring))
 
-    print("the best indiviudual after ", count, "generations has a fitness of ",  )
+        fit_pop = evaluate_pop(new_gen)
+        best_index = np.argmax(fit_pop)
+        best_f = fit_pop[best_index]
+        mean = np.mean(fit_pop)
+        std = np.std(fit_pop)
 
+
+        if(best_f>global_best_f):
+            global_best_f = best_f
+            global_best_individual=new_gen[best_index]
+            improvment += 1
+       
+        # saves results
+    
+        file_aux.write('\n\ngen best mean std')
+        print( '\n GENERATION '+str(count)+' Best:'+str(round(fit_pop[best_index],6))+' Mean:'+str(round(mean,6))+' Standard Deviation: '+str(round(std,6)))
+        file_aux.write('\n'+str(count)+' '+str(round(fit_pop[best_index],6))+' '+str(round(mean,6))+' '+str(round(std,6))   )
+        
+        pop = new_gen
+
+    file_aux.close()
+
+
+    
 main()
