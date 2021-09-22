@@ -118,13 +118,13 @@ def evaluate_pop(x):
 # Parents are chosen semi-randomly: a number (n_candidates_best hyperparameter)
 # of candidates is drawn and the best one of them becomes a part of parent population.
 """
-This function might not be optimal. I had to change every chromosome into a bitstring and then back into np array,
+Thhe following function might not be optimal. I had to change every chromosome into a bitstring and then back into np array,
 since np.arrays are not hashable and as such cannot be keys in the dictionary.
 An implementation without the dictionary might be nice.
 
 Same goes for natural_selection, as it's basically a copy of parent_selection
 """
-def parent_selection(population):
+"""def parent_selection(population):
     parents = [] #creates an empty list, to store chosen chromosomes
     scores = dict()
     # for optimisation reasons, a dictionary of chromosome scores is created
@@ -146,17 +146,19 @@ def parent_selection(population):
         winner = max(candidates_scores, key = candidates_scores.get) #the winner is the chromosome with the highest candidate score
         parents.append(np.fromstring(winner)) #we add a winner to our parents population
         random.shuffle(parents)
-    return np.array(parents)
+    return np.array(parents)"""
 
-"""def parent_selection(population):
+
+"""optimized function:"""
+def parent_selection(population):
     parents = []
     for n in range(n_pop):
         candidates = random.choices(population, k=n_candidates_parents)
         f_candidates = evaluate_pop(candidates)
-        winner = np.argmax(f_candidates)
-        parents.append(candidates[winner])
+        winner_i = np.argmax(f_candidates)
+        parents.append(candidates[winner_i])
     return np.array(parents)
-    """
+    
 #crossover(p1, p2) returns two chromosomes, both of which are children of p1 and p2
 def crossover (p1, p2):
     # children are copies of parents by default
@@ -201,7 +203,7 @@ def create_offspring(parents):
 # Natural selection, combining both parents and offspring populations,
 # eliminating the worst until 1/2 of original quantity prevails
 # the function is mostly a copy of parents_selection
-def natural_selection(parents, offspring):
+"""def natural_selection(parents, offspring):
     initial_population = np.concatenate((parents, offspring), axis=0)
     random.shuffle(initial_population) #crucial, so we can choose only from the first half of shuffled population without loss of generality.
     desired_size = int(len(initial_population) / 2)
@@ -221,9 +223,9 @@ def natural_selection(parents, offspring):
                      key=candidates_scores.get)  # the winner is the chromosome with the highest candidate score
         survivors.append(np.fromstring(winner))  # we add a winner to our surviviors population
         random.shuffle(survivors)
-    return np.array(survivors)
+    return np.array(survivors)"""
 
-"""def natural_selection(parents, offspring):
+def natural_selection(parents, offspring):
     initial_population = np.vstack((parents, offspring))
     random.shuffle(initial_population) 
     desired_size = int(len(initial_population) / 2)
@@ -234,7 +236,7 @@ def natural_selection(parents, offspring):
         winner = np.argmax(f_candidates)
         survivors.append(candidates[winner])
     return np.array(survivors)
-"""
+
 
 
 
@@ -253,5 +255,6 @@ def main():
         offspring = create_offspring(parents)
         survivors = natural_selection(parents, offspring)
 
+    
 
 main()
