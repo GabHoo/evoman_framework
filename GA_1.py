@@ -74,7 +74,9 @@ env = Environment(experiment_name=experiment_name,
                   player_controller=player_controller(n_hidden_neurons),
                   enemymode="static",
                   level=2,
-                  speed="fastest")
+                  speed="fastest",
+                  randomini="yes",
+                  logs="off")
 
 # default environment fitness is assumed for experiment
 env.state_to_log()  # checks environment state
@@ -242,19 +244,59 @@ def natural_selection(parents, offspring):
 
 
 def main():
-
+    improvment = -1 #we set this to -1 bc the first imrpovment will for sure take place (line 291)
     count = 0
+
+    print("\nGeneration: ", count)
+
+    pop = create()
+    fit_pop = evaluate_pop(pop)
+    best_index = np.argmax(fit_pop)
+    global_best_f = fit_pop[best_index] #its the global best bc it is the first one
+    mean = np.mean(fit_pop)
+    std = np.std(fit_pop)
+    global_best_individual=pop[best_index]
+
+
+    #writing datas and stats in cvs file and console
+    file_aux  = open(experiment_name+'/results.csv','w') #in here it is write but in the cycle is 'a' (append)
+    file_aux.write('\n\ngen best mean std')
+    print( '\n GENERATION '+str(count)+' Best: '+str(round(global_best_f,6))+' Mean: '+str(round(mean,6))+' Standard Deviation: '+str(round(std,6)))
+    file_aux.write('\n'+str(count)+' '+str(round(global_best_f,6))+' '+str(round(mean,6))+' '+str(round(std,6))   )
+    
+
+
+
     while count < n_iter:
         count+=1
-        if count ==1:
-            pop = create()
-        else:
-            pop = survivors
-        print("Generation: ", count)
+    
+        print("\nGeneration: ", count)
         parents = parent_selection(pop)
         offspring = create_offspring(parents)
         survivors = natural_selection(parents, offspring)
+        
+        #Printing datas and stats
+        fit_pop = evaluate_pop(survivors)
+        best_index = np.argmax(fit_pop)
+        best_f = fit_pop[best_index]
+        
+        mean = np.mean(fit_pop)
+        std = np.std(fit_pop)
 
-    
+
+        if(best_f>best_f):
+            global_best_f = best_f
+            global_best_individual=survivors[best_index]
+            improvment += 1
+       
+        # saves results
+        file_aux  = open(experiment_name+'/results.csv','a')
+        file_aux.write('\n\ngen best mean std')
+        print( '\n GENERATION '+str(count)+' Best:'+str(round(fit_pop[best_index],6))+' Mean:'+str(round(mean,6))+' Standars deviation:'+str(round(std,6)))
+        file_aux.write('\n'+str(count)+' '+str(round(fit_pop[best_index],6))+' '+str(round(mean,6))+' '+str(round(std,6))   )
+
+        pop=survivors
+        
+    file_aux.close()
 
 main()
