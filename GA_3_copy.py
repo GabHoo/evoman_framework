@@ -1,13 +1,10 @@
-'''
-improve tournament
-improve mutation
 
-'''
 import sys
 import os
 import random
 import numpy as np
 from Chrom import Chrom
+from Chrom import Population
 
 sys.path.insert(0, 'evoman')
 from environment import Environment
@@ -48,55 +45,65 @@ n_pop = 10
 n_iter = 5
 n_candidates = 3
 r_cross = 0.9
-r_mut = 1/n_bits #the usual, as it says in the tutorial.
+r_mut = 1/n_bits #the usual, as it says in the tutorial.s
 dom_u = 1 #upper limit for a gene
 dom_l = -1 #lower limit for a gene
 
+population_registry = []
+
 #functions
-#creates an initial population - a numpy array of numpy arrays. Every one of this np arrays is a chromosome (or chorm for short)
-def create():
-    pop = np.random.uniform(dom_l, dom_u, (n_pop, n_bits))
-    return pop
+def evolution():
+    pop0 = Population(n_pop, n_bits)
+    population_registry.append(testing_pop(pop0))
+    print("best fitness: ",pop0.get_best_chrom().get_fitness)
+    pop0.sort_by_fitness()
+    pop0.show()
+    next_gen = Population(0,0)
+    x=int(pop0.getsize()/2)
+    print(x)
+    #we will cross over the best half, and discard the other
+    #for chrom1, chrom2 in enumerate(pop0.chrom_list):
+    for i in range(x):
+        kid1, kid2 = pop0.chrom_list[i].crossover(pop0.chrom_list[i+1], r_cross)
+        next_gen.add_chrom(kid1)
+        next_gen.add_chrom(kid2)
+    print ("next gen: ", next_gen)
+    testing_pop(next_gen)
+    next_gen.sort_by_fitness()
+    next_gen.show()
 
-#maybe we should take care of normalization(?)) (w'll see)
 
-#lifted from opt._spec._demo.py, run the simulation, returns fitness function
-def evaluate(chrom):
-    f,p,e,t = env.play(pcont=chrom)
+
+
+
+
+'''
+IDEA:
+
+like in Natural Selection
+the chroms with best fitness have a much bigger change of reproduction
+the chroms who don't even survive should be eliminated 
+or if they don't reach a minimum fitness point
+'''
+
+def simulation(chrom):
+    f,p,e,t = env.play(pcont=chrom.genome)
     return f
 
+def testing_pop(pop):
+    for chrom in pop.chrom_list:
+        chrom.fitness = simulation(chrom)
 
 #tournament, getting the best chromosomes from the population
 def tournament (pop):
     #we choose n_candidates of candidates
     candidates = random.choices(pop, k=n_candidates)
-    #we find the strongest of candidates
-    #this piece of code could be improved and made short if we want. Should not be hard with a lamba and a sorted list.
-    #Definitely do this, whoever can :)
-    winner = candidates[0]
-    top = evaluate(winner)
-    for chrom in candidates[1:]:
-        if evaluate(chrom) > top:
-            top = evaluate(chrom)
-            winner = chrom
-    return winner
+    for chrom in pop:
+        chrom.fitness=evaluate(chrom.genome)
+    pop_classification=sorted(pop, key = lambda x: x[1], reverse=True)
+    return pop_classification[0]
 
 #crossover, creating two children of two parents
-def crossover(p1, p2):
-
-	# children are copies of parents by default
-    c1, c2 = p1.copy(), p2.copy()
-    #print("c1", c1, "c2", c2)
-	# check for recombination
-    if random.random() < r_cross:
-        #print("p1", p1, "p2", p2)
-		# select crossover point that is not on the end of the string
-        pt = random.randint(1, len(p1)-2)
-        
-		# perform crossover
-        c1 = np.concatenate((p1[:pt],p2[pt:]),axis=None)
-        c2 = np.concatenate((p2[:pt],p1[pt:]),axis=None)
-    return [c1, c2]
 
 # mutation, adding a random number to some of the numbers in the chrom
 def mutation(chrom):
@@ -115,10 +122,11 @@ def limits(x):
     else:
         return x
 
-
-
-
 def main():
+    evolution()
+
+
+def main2():
     #iteratating over generations
     count = 0
     for gen in range (n_iter):
