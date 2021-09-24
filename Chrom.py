@@ -3,9 +3,16 @@ import random
 
 class Chrom(object):
 
-    def __init__(self,size):
-        self.genome = np.random.uniform(-1, 1, size)
-        self.fitness = 0
+    def __init__(self,size,dom_l,dom_u,genome=np.array([]),r_mut=None):
+
+        if genome.size==0: # standard initial creation
+            self.genome = np.random.uniform(dom_l, dom_u, size)
+            self.fitness = 0
+            self.r_mut = np.random.randint(0,1)
+        else:     #after crossover creation
+            self.genome=genome
+            self.r_mut=r_mut
+
 
     def __iter__(self):
         return Iterator([self.genome, self.fitness])
@@ -25,6 +32,13 @@ class Chrom(object):
     def get_size(self):
         return len(self.genome)
 
+    def get_mutation_rate(self):
+        return self.r_mut
+    
+    def set_mutation_rate(self, mutation_rate):
+        self.r_mut=mutation_rate
+    
+        
     def crossover(self, chrom2, r_cross):
 	# children are copies of parents by default
         c1, c2 = self.copy(), chrom2.copy()
@@ -54,6 +68,7 @@ class Population(object):
         self.chrom_list=[]
         for _ in range(size):
             self.chrom_list.append(Chrom(chrom_size))
+
     def __iter__(self):
         return Iterator(self.chrom_list)
 
