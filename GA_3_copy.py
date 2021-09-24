@@ -52,25 +52,46 @@ dom_l = -1 #lower limit for a gene
 population_registry = []
 
 #functions
-def evolution():
-    pop0 = Population(n_pop, n_bits)
-    population_registry.append(testing_pop(pop0))
-    print("best fitness: ",pop0.get_best_chrom().get_fitness)
-    pop0.sort_by_fitness()
-    pop0.show()
+def simulation(chrom):
+    f,p,e,t = env.play(pcont=chrom)
+    return f
+
+def testing_pop(pop):
+    for i in range (len(pop.chrom_list)):
+        pop.chrom_list[i].fitness = simulation(pop.chrom_list[i].genome)
+
+#crossover, creating two children of two parents
+def crossover(genome1, genome2):
+	# children are copies of parents by default
+    c1, c2 = genome1.copy(), genome2.copy()
+	# check for recombination
+    if random.random() < r_cross:
+		# select crossover point that is not on the end of the string
+        pt = random.randint(1, len(genome1)-2)
+		# perform crossover
+        c1 = np.concatenate((genome1[:pt],genome2[pt:]),axis=None)
+        c2 = np.concatenate((genome1[:pt],genome2[pt:]),axis=None)
+
+    return Chrom(c1), Chrom(c2)
+
+
+def evolution(pop):
+    
     next_gen = Population(0,0)
-    x=int(pop0.getsize()/2)
-    print(x)
+    x = int(pop.getsize()/2)
     #we will cross over the best half, and discard the other
-    #for chrom1, chrom2 in enumerate(pop0.chrom_list):
-    for i in range(x):
-        kid1, kid2 = pop0.chrom_list[i].crossover(pop0.chrom_list[i+1], r_cross)
-        next_gen.add_chrom(kid1)
-        next_gen.add_chrom(kid2)
-    print ("next gen: ", next_gen)
+    for i in range(x): 
+        c1, c2 = crossover(pop.chrom_list[i].genome, pop.chrom_list[i+1].genome)
+        next_gen.add_chroms([c1, c2])
+        next_gen.mutation(r_mut)
     testing_pop(next_gen)
     next_gen.sort_by_fitness()
-    next_gen.show()
+    population_registry.append(testing_pop(pop))
+
+    return next_gen
+
+
+
 
 
 
@@ -86,91 +107,25 @@ the chroms who don't even survive should be eliminated
 or if they don't reach a minimum fitness point
 '''
 
-def simulation(chrom):
-    f,p,e,t = env.play(pcont=chrom.genome)
-    return f
 
-def testing_pop(pop):
-    for chrom in pop.chrom_list:
-        chrom.fitness = simulation(chrom)
 
-#tournament, getting the best chromosomes from the population
-def tournament (pop):
-    #we choose n_candidates of candidates
-    candidates = random.choices(pop, k=n_candidates)
-    for chrom in pop:
-        chrom.fitness=evaluate(chrom.genome)
-    pop_classification=sorted(pop, key = lambda x: x[1], reverse=True)
-    return pop_classification[0]
 
-#crossover, creating two children of two parents
-
-# mutation, adding a random number to some of the numbers in the chrom
-def mutation(chrom):
-	for i in range(len(chrom)):
-		# check for a mutation
-		if random.random() < r_mut:
-			# flip the bit
-			chrom+=np.random.normal(0, 1)
-
-#we don't want any gene (a single number in a chromosome, that's how we call it?) to ba above 1 nor below -1, so we limit it
-def limits(x):
-    if x>dom_u:
-        return dom_u
-    elif x<dom_l:
-        return dom_l
-    else:
-        return x
 
 def main():
-    evolution()
+    i=0
+    pop = Population(n_pop, n_bits)
+    testing_pop(pop)
+    pop.sort_by_fitness()
+    print("initial Pop")
+    pop.show()
 
+    population_registry.append(testing_pop(pop))
+    while i<3:
+        next_pop = evolution(pop)
+        print("Pop :", i)
+        next_pop.show()
+        i+=1
 
-def main2():
-    #iteratating over generations
-    count = 0
-    for gen in range (n_iter):
-        count += 1
-        print("GEN is : " , count)
-
-
-        if count == 1:
-            pop = create()
-        else:
-            pop = children
-
-        #now we can do a tournament - we select k chromosomes at random and choose the best of them
-        #we don't just choose the best - idk exacly why, but probly to mimic evolutionary mechanics
-        #^ now I get it, we do it so we can preform the tournament n_pop times, without getting the same parent always
-
-        #I'm kinda shady on the details, but I think now we need to pick n_pop parents - so that our generation isn't getting smaller
-        #this way, we might pick the same parent many times, I think. I don't think it's a problem, but I might understand it wrong.
-        
-        parents = []
-        
-        #parents = pop #line not to make it run forever
-        """print("++++++++++++")"""
-        for n in range (n_pop):
-            parents.append(tournament(pop))
-        """print("++++++++++++++")"""
-        #now we will create a new generation
-        children = []
-        for i in range(0, n_pop, 2):
-            # get selected parents in pairs (no need to shuffle or introduce randomness, since the list is already de facto randomly shuffled            p1 = parents[i]
-            p1, p2 = parents[i], parents[i + 1]
-            # crossover and mutation
-            
-            for c in crossover(p1, p2):
-                # mutation
-                mutation(c)
-                #check if not over 1 nor under -1
-                for x in c:
-                    limits(x)
-                # store for next generation
-                #^Basicly I changed it to append array(c) to the children list
-                children.append(np.array(c))
-        #and then I transformed the list into a big ass array (same shape as pop) to keep the iterations going        
-        children = np.stack(children, axis = 0)
 
 
 main()
