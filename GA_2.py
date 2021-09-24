@@ -33,14 +33,14 @@ n_hidden_neurons = 10
 
 # initializes simulation in individual evolution mode, for single static enemy.
 env = Environment(experiment_name=experiment_name,
-                  enemies=[2],
+                  enemies=[6],
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
                   enemymode="static",
                   level=2,
                   speed="fastest",
                   randomini="yes",
-                  logs="off")
+                  logs="on")
 
 # default environment fitness is assumed for experiment
 env.state_to_log()  # checks environment state

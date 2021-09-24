@@ -1,4 +1,3 @@
-from genericpath import getsize
 import numpy as np
 import random
 
@@ -23,12 +22,9 @@ class Chrom(object):
     def mutate (self,r_mut):
         for i in range(self.get_size()):
             if random.random() < r_mut:
-                self.genome[i] = random.uniform(-1, 1)		        
+                self.genome[i] = random.uniform(-1, 1)	
 
-   
-
-   
-
+                
 class Population(object):
         
     def __init__(self, size, chrom_size):
@@ -84,21 +80,3 @@ class Iterator(object):
        except IndexError:
            self.idx = 0
            raise StopIteration  # Done iterating.
-
-'''
-    def crossover(self, chrom2, r_cross):
-	# children are copies of parents by default
-        c1, c2 = self.copy(), chrom2.copy()
-        pt=0
-        #print("c1", c1, "c2", c2)
-        # check for recombination
-        if random.random() < r_cross:
-            #print("p1", p1, "p2", p2)
-            # select crossover point that is not on the end of the string
-            pt = random.randint(1, self.get_size()-2)
-            
-            # perform crossover
-        c1 = np.concatenate((self.genome[:pt],chrom2.genome[pt:]),axis=None)
-        c2 = np.concatenate((chrom2.genome[:pt],self.genome[pt:]),axis=None)
-        return c1, c2
-'''
