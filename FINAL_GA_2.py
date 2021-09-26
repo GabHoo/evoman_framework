@@ -17,7 +17,7 @@ headless = True
 if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
-experiment_name = 'FINAL_GA_1'
+experiment_name = 'FINAL_GA_2'
 if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
 
@@ -40,10 +40,10 @@ env.state_to_log()  # checks environment state
 """3. Hyperparameters"""
 
 chrom_size = (env.get_num_sensors() + 1) * n_hidden_neurons + (n_hidden_neurons + 1) * 5
-pop_size = 4  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+pop_size =  10  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
 n_parents = pop_size # how many individuals will be selected for parenting
 n_candidates_parents = 5  # number of candidates to be selected during the parents selection
-n_offspring = 8 # this might be a big number 
+n_offspring = 40 # this might be a big number 
 
 r_cross = 0.9  # crossover rate, the chance that children will be hybrids of their parents (else, they are copies of them)
 r_mut = 10 / chrom_size  # mutation rate, how likely is it for a gene to mutate
@@ -70,7 +70,7 @@ def create(size_pop,chrom_size):
 def evaluate(chromosome):
     f,p,e,t = env.play(pcont=chromosome.genome)
     chromosome.fitness=f 
-    
+     
 
         
 #evaluate pop
@@ -184,10 +184,10 @@ def main():
         evaluate_pop(offspring)
 
 
-        new_gen = parents + offspring #ALGORITHM 1 : PARENTS + KIDS
+        new_gen = offspring #ALGORITHM 2 : ONLY KIDS
         
         new_gen.sort(key = lambda x: x.fitness, reverse=True)
-    
+        
     
         new_gen = deterministic_selection(new_gen)
         

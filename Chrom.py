@@ -2,27 +2,46 @@ import numpy as np
 import random
 
 class Chrom(object):
+    def __init__(self,size,dom_l,dom_u,genome=np.array([]),r_mut=None):
 
-    def __init__(self, genome):
-        self.genome = genome
-        self.fitness = 0
+        if genome.size==0: # standard initial creation
+            self.genome = np.random.uniform(dom_l, dom_u, size)
+            self.fitness = 0
+            self.r_mut = np.random.randint(0,1)
+        else:     #after crossover creation
+            self.genome=genome
+            self.r_mut=r_mut
+
 
     def __iter__(self):
         return Iterator([self.genome, self.fitness])
 
     def __str__(self):
-        return "Chrom Fitness: %s" % (self.fitness)
+        return("Chrom fitness", self.fitness)
     
     def copy(self):
         return self
+
+    def set_fitness(self, fitness):
+        self.fitness=fitness
+    
+    def get_fitness(self):
+        return self.fitness
     
     def get_size(self):
         return len(self.genome)
 
-    def mutate (self,r_mut):
+    def get_mutation_rate(self):
+        return self.r_mut
+    
+    def set_mutation_rate(self, mutation_rate):
+        self.r_mut=mutation_rate
+
+
+"""    def mutate (self,r_mut):
         for i in range(self.get_size()):
             if random.random() < r_mut:
-                self.genome[i] = random.uniform(-1, 1)	
+                self.genome[i] = random.uniform(-1, 1)"""	
 
                 
 class Population(object):
