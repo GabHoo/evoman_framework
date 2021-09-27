@@ -474,7 +474,7 @@ class Environment(object):
             # updates objects and draws its itens on screen
             self.screen.fill((250,250,250))
             self.tilemap.update( 33 / 1000., self)
-            self.tilemap.draw(self.screen)
+            """self.tilemap.draw(self.screen)"""
 
             # player life bar
             """vbar = int(100 *( 1-(self.player.life/float(self.player.max_life)) ))
