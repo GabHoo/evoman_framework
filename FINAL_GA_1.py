@@ -6,18 +6,26 @@ import sys
 import os
 import random
 import numpy as np
-import Chrom
+import Chrom 
+import csv
+import argparse
 
 sys.path.insert(0, 'evoman')
 from environment import Environment
 from demo_controller import player_controller
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-o","--output_file_folder", help="Add the name of the Experiment pls you cunt", required=True, dest="experiment_name")
+args=parser.parse_args()
+
+
 
 """2. Setting up the enviroment (lifted from optimization_specialist_demo.py)"""
 headless = True
 if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
-experiment_name = 'FINAL_GA_1'
+experiment_name = 'FINAL_GA_1/'+args.experiment_name
 if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
 
@@ -51,7 +59,7 @@ dom_u = 1  # upper limit for a gene
 dom_l = -1  # lower limit for a gene
 
 #Stop criteria:
-n_iter = 5  # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
+n_iter = 6  # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
 min_fit = 95 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
 
 
@@ -70,6 +78,9 @@ def create(size_pop,chrom_size):
 def evaluate(chromosome):
     f,p,e,t = env.play(pcont=chromosome.genome)
     chromosome.fitness=f 
+    chromosome.p_life=p
+    chromosome.e_life=e
+    chromosome.time=t
     
 
         
@@ -161,12 +172,15 @@ def main():
     print("\nGeneration: ", count)
     
 
-    file_aux  = open(experiment_name+'/results.csv','w')
-    file_aux.write('\n\ngen best mean std')
+    #file_aux  = open(experiment_name+'/results.csv','w')
+    #file_aux.write('\n\ngen best mean std')
     print( '\n GENERATION '+str(count)+' Best: '+str(round(pop[0].fitness,6))+' Mean: '+str(round(mean,6))+' Standard Deviation '+str(round(std,6)))
-    file_aux.write('\n'+str(count)+' '+str(round(pop[0].fitness,6))+' '+str(round(mean,6))+' '+str(round(std,6))   )
+    #file_aux.write('\n'+str(count)+' '+str(round(pop[0].fitness,6))+' '+str(round(mean,6))+' '+str(round(std,6))   )
     
-
+    archive=[]
+        
+    for c in pop:
+            archive += [[c.fitness,c.p_life,c.e_life,c.time,count]] #APPENDS THE LINE AS A LIST TO THE LIST OF LINES
 
 
     while count < n_iter:
@@ -198,11 +212,16 @@ def main():
         mean = np.mean(fitnesses)
         std = np.std(fitnesses)
 
+
+       
+            
+
+
         # saves results
-   
-        file_aux.write('\n\ngen best mean std')
-        print( '\n GENERATION '+str(count)+' Best: '+str(round(new_gen[0].fitness,6))+' Mean: '+str(round(mean,6))+' Standard Deviation '+str(round(std,6)))
-        file_aux.write('\n'+str(count)+' '+str(round(new_gen[0].fitness,6))+' '+str(round(mean,6))+' '+str(round(std,6))   )
+
+        #file_aux.write('\n\ngen best mean std')
+        print('\n GENERATION '+str(count)+' Best: '+str(round(new_gen[0].fitness,6))+' Mean: '+str(round(mean,6))+' Standard Deviation '+str(round(std,6)))
+        #file_aux.write('\n'+str(count)+' '+str(round(new_gen[0].fitness,6))+' '+str(round(mean,6))+' '+str(round(std,6))   )
         
         if(new_gen[0].fitness>global_best_f):
                 global_best_f = new_gen[0].fitness
@@ -210,14 +229,28 @@ def main():
                 improvment += 1
 
         pop = new_gen
+
+        for c in pop:
+            archive += [[c.fitness,c.p_life,c.e_life,c.time,count]]
      
-    file_aux.close()
+    #file_aux.close()
     file_best  = open(experiment_name+'/best.txt','w')
-    file_best.write("The following best individual has scored a fitness of: "+str(global_best_f)+ "\n"+str(global_best_individual))
+    file_best.write("The following best individual has scored a fitness of: "+str(round(global_best_f,6))+ "\n"+repr(global_best_individual.genome))
+    file_best.close
 
+    header= ['Fitness','Player_Life','Enemy_Life', 'Time','Generataion']
 
+    with open(experiment_name+'/Evolution_Archive.csv','w') as f:
+        writer = csv.writer(f)
 
-#print the best and its fitness in another file
+        # write the header
+        writer.writerow(header)
+
+        for c in archive:
+        # write the data
+            writer.writerow(c)
+    
+
 
     
 main()

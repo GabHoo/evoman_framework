@@ -2,28 +2,35 @@ import numpy as np
 import random
 
 class Chrom(object):
+
     def __init__(self,size,dom_l,dom_u,genome=np.array([]),r_mut=None):
 
         if genome.size==0: # standard initial creation
             self.genome = np.random.uniform(dom_l, dom_u, size)
-            self.fitness = 0
+            self.fitness = None
             self.r_mut = np.random.randint(0,1)
         else:     #after crossover creation
             self.genome=genome
             self.r_mut=r_mut
-
+            self.fitness=None
+    p_life=None
+    e_life=None
+    time=None
 
     def __iter__(self):
         return Iterator([self.genome, self.fitness])
 
+    def __repr__(self):
+        return str(self.genome)
+
     def __str__(self):
-        return("Chrom fitness", self.fitness)
+        return(str(self.genome))
     
     def copy(self):
         return self
 
-    def set_fitness(self, fitness):
-        self.fitness=fitness
+    def set_fitness(self):
+        self.fitness=fitness_value
     
     def get_fitness(self):
         return self.fitness
