@@ -1,3 +1,4 @@
+from genericpath import getsize
 import numpy as np
 import random
 
@@ -28,7 +29,13 @@ class Chrom(object):
     def get_size(self):
         return len(self.genome)
 
-    def mutate (self,r_mut):
+    def mutate (self,T):
+        parameter = T
+        s = np.random.normal(0, 0.1, self.get_size())
+        array = parameter*s
+        self.genome= self.genome + array
+
+    def mutate2 (self,r_mut):
         for i in range(self.get_size()):
             if random.random() < r_mut:
                 self.genome[i] = random.uniform(-1, 1)	

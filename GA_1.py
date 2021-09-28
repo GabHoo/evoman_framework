@@ -53,6 +53,9 @@ n_parents = pop_size # how many individuals will be selected for parenting
 n_candidates_parents = 5  # number of candidates to be selected during the parents selection
 n_offspring = 100 # this might be a big number 
 
+
+#T = 1/sqrt(265) 
+T = 0.06143
 r_cross = 0.9  # crossover rate, the chance that children will be hybrids of their parents (else, they are copies of them)
 r_mut = 10 / chrom_size  # mutation rate, how likely is it for a gene to mutate
 dom_u = 1  # upper limit for a gene
@@ -112,7 +115,7 @@ def reproduction(parents):
             p1, p2 = parents.chrom_list[i], parents.chrom_list[i + 1]
             c = crossover(p1, p2)
             offspring.add_chroms(c)
-    #offspring.mutation(r_mut)
+    offspring.mutation(r_mut)
 
     return offspring
     
@@ -122,6 +125,7 @@ def deterministic_selection(pop):
     pop.chrom_list = pop.chrom_list[:pop_size]
     return pop
 
+
 def main():
     improvment = -1 #we set this to -1 bc the first imrpovment will for sure take place (line 206)
     count = 0
@@ -129,39 +133,30 @@ def main():
     pop = Population(pop_size,chrom_size,dom_l,dom_u)
     testing_pop(pop)
     pop.sort_by_fitness()
-
-    print("\nGeneration: ", count)
-
     global_best=pop.chrom_list[0]
-    
 
     print( '\n GENERATION '+str(count)+' Best: '+str(round(pop.chrom_list[0].fitness,6))+' Mean: '+str(round(pop.get_fitness_mean(),6))+' Standard Deviation '+str(round(pop.get_fitness_STD(),6)))
     
-
-    archive=[]
-        
+    archive=[]    
     for c in pop.chrom_list:
             archive += [[c.fitness,c.p_life,c.e_life,c.time,count]] #APPENDS THE LINE AS A LIST TO THE LIST OF LINES
-
-
-
+    
     while count < n_iter:
         count+=1
-        
         print("\nGeneration: ", count)
+
         #evolution process:
+
         #Selecting the Chroms to reproduce
-        print("number  of  indivi", pop.get_size())
         selection(pop)
+
         #Perform crossover to get offsrping, and mutate it
         offspring = reproduction(pop)
         testing_pop(offspring)
-        offspring.mutation(r_mut)
-        #print("offspring: ")
-        #offspring.show()
 
         new_gen = Population()
         new_gen.chrom_list= pop.chrom_list+offspring.chrom_list #ALGORITHM 1 : PARENTS + KIDS
+        new_gen.mutation(r_mut)
         new_gen.sort_by_fitness()
        
 
