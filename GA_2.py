@@ -1,31 +1,31 @@
-#OK so the idea behind it is not very far from Andy's one but idk.
-#basically in every iteration the pop gets smaller (trough classi selection/tournament function) by a certain ammount that we can tune, so far it is the half.
-#once you have ideally some of the best individuals you make the fuck like rabbits and mutate the child in order to restablish the initial numner 
-
-
-#I also changed the function for crossover and now rather than having all the parents generating a child we choose them randomly in the population (?)
-#with this method tho, results are slightly worse but I am not sure. Maybe some of you big brains can tell me why
-
-#Maybe I should take care of the fact that the number of the pop cannot just be a random odd number but idk, so be carefull if you change n_pop
-
-#I also in general notice some lack of diversity,  true is that I have been runnign with very low number of chromosoms but idk
+#ok so first attempt to create what could be our final algorithms. Logs system might be primitive but it is there. Just need to change the format.
+#class chromosome is imported so that is fuking easy to sort a chromosome collection by fitness.
 
 """1. Imports"""
 import sys
 import os
 import random
 import numpy as np
+from Chrom import Population
+from Chrom import Chrom
+import argparse
+import csv
 
 sys.path.insert(0, 'evoman')
-from environment import Environment
+from enviroment import Environment
 from demo_controller import player_controller
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-o","--output_file_folder", help="Add the name of the Experiment pls you cunt", required=True, dest="experiment_name")
+args=parser.parse_args()
+
 
 """2. Setting up the enviroment (lifted from optimization_specialist_demo.py)"""
 headless = True
 if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
-experiment_name = 'GA_2'
+experiment_name = 'GA_2/'+args.experiment_name
 if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
 
@@ -33,147 +33,115 @@ n_hidden_neurons = 10
 
 # initializes simulation in individual evolution mode, for single static enemy.
 env = Environment(experiment_name=experiment_name,
-                  enemies=[6],
+                  enemies=[1],
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
                   enemymode="static",
                   level=2,
                   speed="fastest",
                   randomini="yes",
-                  logs="on")
+                  logs="off")
 
 # default environment fitness is assumed for experiment
 env.state_to_log()  # checks environment state
 
 """3. Hyperparameters"""
-n_bits = (env.get_num_sensors() + 1) * n_hidden_neurons + (n_hidden_neurons + 1) * 5
-n_pop = 4  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
-#^ n_pop gotta be even, otherwise we'll get an error while trying to pair chromosomes for crossover!
+
+chrom_size = (env.get_num_sensors() + 1) * n_hidden_neurons + (n_hidden_neurons + 1) * 5
+pop_size = 50  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+n_parents = pop_size # how many individuals will be selected for parenting
 n_candidates_parents = 5  # number of candidates to be selected during the parents selection
+n_offspring = 100 # this might be a big number 
 
 r_cross = 0.9  # crossover rate, the chance that children will be hybrids of their parents (else, they are copies of them)
-r_mut = 10 / n_bits  # mutation rate, how likely is it for a gene to mutate
+r_mut = 10 / chrom_size  # mutation rate, how likely is it for a gene to mutate
 dom_u = 1  # upper limit for a gene
 dom_l = -1  # lower limit for a gene
 
-n_survivors = int(n_pop/2) #first wave o survivors, those who get be parents. VERY UGLY CAST TO INT but its fine as long as we assume n_pop is even
-
 #Stop criteria:
-n_iter = 5  # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
-min_fit = 95 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
+n_iter = 15  # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
+min_fit = 85 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
 
 
 """4. Implementing functions"""
 
-#create() creates a new population. Size of the population and length of a chromosome controlled by hyperparameters
-def create():
-    population = np.random.uniform(dom_l, dom_u, (n_pop, n_bits))
-    #creates a uniformly distributed (from dom_l to dom_u) population in size n_pop x n_bits
-    return population
-
 # lifted from optimization_specialist_demo.py, evaluate(chromosome) runs the simulation
 # with a given chromosome as a seed (bias, input) for the player controller; returns fitness of the run.
+    
 def evaluate(chromosome):
-    f,p,e,t = env.play(pcont=chromosome)
-    return f
+    f,p,e,t = env.play(pcont=chromosome.genome)
+    #eventually with coyuld implement shared fintess punishment
+    chromosome.fitness=f 
+    chromosome.p_life=p
+    chromosome.e_life=e
+    chromosome.time=t
 
-# evaluation
-def evaluate_pop(x):
-    return np.array(list(map(lambda y: evaluate(y), x)))
+#evaluate pop
+def testing_pop(pop):
+    for c in pop.chrom_list:
+        evaluate(c)
+    
 
-
+"""Evolution fuctionss"""
 
 #selection returns a reduced populetion, we can tune how many in the hyperparameters
-
-def selection(population):
+def selection(pop):
     parents = []
-    for n in range(n_survivors):
-        candidates = random.choices(population, k=n_candidates_parents)
-        f_candidates = evaluate_pop(candidates)
-        winner = np.argmax(f_candidates)
-        #print("\n", "first lucky survivor has a respectable fitness of: " , max(f_candidates), "\n")
-        parents.append(candidates[winner])
-    random.shuffle(parents)
-    return np.array(parents)
+    for n in range(n_parents):
+        candidates = random.choices(pop.chrom_list, k=n_candidates_parents)
+        candidates.sort(key = lambda x: x.fitness, reverse=True)
+        winner = candidates[0]
+        parents.append(winner)
+    pop.chrom_list = parents
+
     
-#crossover(p1, p2) returns two chromosomes, both of which are children of p1 and p2
-def crossover (p1, p2):
-    # children are copies of parents by default
-    c1, c2 = p1.copy(), p2.copy()
-    # print("c1", c1, "c2", c2)
-    # check for recombination
-    if random.random() < r_cross:
-        # select crossover point that is not on the end of the string
-        pt = random.randint(1, len(p1) - 2)
-        # perform crossover
-        c1 = np.concatenate((p1[:pt], p2[pt:]), axis=None)
-        c2 = np.concatenate((p2[:pt], p1[pt:]), axis=None)
-    return [c1, c2]
-
-#mutate mutates the chromosome, adding random numbers to randomly selected genes.
-#note that this function doesn't return anything, but rather changes the chromosome itself.
-def mutate (chromosome):
-    for i in chromosome:
-        # check for a mutation
-        if random.random() < r_mut:
-            # add random number to the gene
-            i += np.random.normal(0, 1)
-            # then check if it's not over limits
-            if i > dom_u:
-                i = 1
-            if i < dom_l:
-                i = -1
-
-# create_offspring(survivors) creates an offspring population sufficient to restablish the original number of individual
-# by performing crossover on pairs of parents and mutating the resulting chromosomes
-"""def create_offspring(survivors):
-    offspring = [] #new list, for storing children
-    for i in range(0,(n_pop-n_survivors), 2):
-        p1, p2 = survivors[i], survivors[i + 1]
-        c1, c2 = crossover(p1, p2)
-        mutate(c1)
-        mutate(c2)
-        offspring.append(c1)
-        offspring.append(c2)
-    return np.array(offspring)
-"""
-def create_offspring(survivors):
-    offspring = [] #new list, for storing children
-    for i in range(0,int(((n_pop-n_survivors)/2)), 2): #n_pop-n_survivors is the number of offsprings that we need to create in order to restablish a full population
-        p1 = survivors[np.random.randint(0,len(survivors))]
-        p2 = survivors[np.random.randint(0,len(survivors))]
-        c1, c2 = crossover(p1, p2)
-        mutate(c1)
-        mutate(c2)
-        offspring.append(c1)
-        offspring.append(c2)
-    return np.array(offspring)
+#crossover(p1, p2) returns c (one chromosome)
+def crossover (p1, p2): #crossover only handles lists (genomes)
+    new_genome = np.empty(chrom_size)
+    for i in range(chrom_size):
+        new_genome[i] = (p1.genome[i] + p2.genome[i])/ 2 #mean value of his parents values of the very gene   
+    r_mut=((p1.r_mut + p2.r_mut) / 2)
+    return Chrom(new_genome,r_mut) 
 
 
+def reproduction(parents):
+
+    offspring = Population()
+    for j in range(int(n_offspring/(n_parents/2))): #based on how many offpring we want: 400? and the pop is 100? then it will iterate 8 times #hopefully they will not be the same bc of mutation
+        for i in range(0, parents.get_size(), 2):
+            p1, p2 = parents.chrom_list[i], parents.chrom_list[i + 1]
+            c = crossover(p1, p2)
+            offspring.add_chroms(c)
+    #offspring.mutation(r_mut)
+
+    return offspring
+    
 
 
-
+def deterministic_selection(pop):
+    pop.chrom_list = pop.chrom_list[:pop_size]
+    return pop
 
 def main():
     improvment = -1 #we set this to -1 bc the first imrpovment will for sure take place (line 206)
     count = 0
 
-    pop = create()
-    fit_pop = evaluate_pop(pop)
-    best_index = np.argmax(fit_pop)
-    global_best_f = fit_pop[best_index] #its the global best bc it is the first one
-    mean = np.mean(fit_pop)
-    std = np.std(fit_pop)
-    global_best_individual=pop[best_index]
+    pop = Population(pop_size,chrom_size,dom_l,dom_u)
+    testing_pop(pop)
+    pop.sort_by_fitness()
 
     print("\nGeneration: ", count)
+
+    global_best=pop.chrom_list[0]
     
 
-    file_aux  = open(experiment_name+'/results.csv','w')
-    file_aux.write('\n\ngen best mean std')
-    print( '\n GENERATION '+str(count)+' Best: '+str(round(fit_pop[best_index],6))+' Mean: '+str(round(mean,6))+' Standard Deviation'+str(round(std,6)))
-    file_aux.write('\n'+str(count)+' '+str(round(global_best_f,6))+' '+str(round(mean,6))+' '+str(round(std,6))   )
+    print( '\n GENERATION '+str(count)+' Best: '+str(round(pop.chrom_list[0].fitness,6))+' Mean: '+str(round(pop.get_fitness_mean(),6))+' Standard Deviation '+str(round(pop.get_fitness_STD(),6)))
     
+
+    archive=[]
+        
+    for c in pop.chrom_list:
+            archive += [[c.fitness,c.p_life,c.e_life,c.time,count]] #APPENDS THE LINE AS A LIST TO THE LIST OF LINES
 
 
 
@@ -181,39 +149,65 @@ def main():
         count+=1
         
         print("\nGeneration: ", count)
-
-        #evolution process
-
-        print("\nrunning parent's selection..","\n")
-        survivors = selection(pop)
-
-        print("creating offspring..")
-        offspring = create_offspring(survivors)
-
-        new_gen = np.vstack((survivors,offspring))
-
-        fit_pop = evaluate_pop(new_gen)
-        best_index = np.argmax(fit_pop)
-        best_f = fit_pop[best_index]
-        mean = np.mean(fit_pop)
-        std = np.std(fit_pop)
-
-
-        if(best_f>global_best_f):
-            global_best_f = best_f
-            global_best_individual=new_gen[best_index]
-            improvment += 1
-       
-        # saves results
-    
-        file_aux.write('\n\ngen best mean std')
-        print( '\n GENERATION '+str(count)+' Best:'+str(round(fit_pop[best_index],6))+' Mean:'+str(round(mean,6))+' Standard Deviation: '+str(round(std,6)))
-        file_aux.write('\n'+str(count)+' '+str(round(fit_pop[best_index],6))+' '+str(round(mean,6))+' '+str(round(std,6))   )
+        #evolution process:
+        #Selecting the Chroms to reproduce
         
+        selection(pop)
+        #Perform crossover to get offsrping, and mutate it
+        offspring = reproduction(pop)
+        testing_pop(offspring)
+        offspring.mutation(r_mut)
+        #print("offspring: ")
+        #offspring.show()
+
+        new_gen = Population()
+        new_gen.chrom_list= offspring.chrom_list #ALGORITHM 2 :  KIDS
+        new_gen.sort_by_fitness()
+       
+
+        print("POP best fitness: ", pop.get_best_fitness()) 
+        print("NEWGEN best fitness: ", new_gen.get_best_fitness()) 
+       
+        
+        new_gen = deterministic_selection(new_gen)
+
+
+        best_C=new_gen.chrom_list[0]
+
+       
+
+        print( '\n GENERATION '+str(count)+' Best: '+str(round(new_gen.chrom_list[0].fitness,6))+' Mean: '+str(round(new_gen.get_fitness_mean(),6))+' Standard Deviation '+str(round(pop.get_fitness_STD(),6)))
+
+        if new_gen.get_best_fitness() > global_best.fitness:
+                global_best = new_gen.chrom_list[0]
+                improvment += 1
+
+
         pop = new_gen
 
-    file_aux.close()
+        for c in pop.chrom_list:
+            archive += [[c.fitness,c.p_life,c.e_life,c.time,count]]
 
+    file_best  = open(experiment_name+'/best.txt','w')
+    file_best.write("The following best individual has scored a fitness of: "+str(round(global_best.fitness,6))+ "\n"+repr(global_best.genome))
+    file_best.close
+
+
+    header= ['Fitness','Player_Life','Enemy_Life', 'Time','Generataion']
+
+    with open(experiment_name+'/Evolution_Archive.csv','w') as f:
+        writer = csv.writer(f)
+
+        # write the header
+        writer.writerow(header)
+
+        for c in archive:
+        # write the data
+            writer.writerow(c)
+    
+
+
+#print the best and its fitness in another file
 
     
 main()

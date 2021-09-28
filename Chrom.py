@@ -36,19 +36,17 @@ class Chrom(object):
                 
 class Population(object):
         
-    def __init__(self, size, chrom_size,dom_l,dom_u):
+    def __init__(self, size=0, chrom_size=0 ,dom_l=0 ,dom_u=0):
         self.chrom_list=[]
         if size is not 0:
             for _ in range(size):
                 genome = np.random.uniform(dom_l, dom_u, chrom_size)
-                r_mut=np.random(0,1)
+                r_mut=np.random.randint(0,1)
                 self.chrom_list.append(Chrom(genome,r_mut))
 
     def __iter__(self):
         return Iterator(self.chrom_list)
     
-    def set_chrom_list(self, new_chrom_list):
-        self.chrom_list=new_chrom_list
     
     def show_f(self):
         for chrom in self.chrom_list:
