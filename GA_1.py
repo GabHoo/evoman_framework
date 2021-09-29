@@ -55,8 +55,8 @@ step_max = 1 #max number mutation_step variable can assume
 
 T = 1/(chrom_size**0.5) 
 
-pop_size = 100  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
-n_offspring = 400 # this might be a big number 
+pop_size = 20  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+n_offspring = 100 # this might be a big number 
 
 #Stop criteria:
 n_iter = 1  # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
