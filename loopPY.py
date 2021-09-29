@@ -1,2 +1,2 @@
 import os
-os.system("python3 ./GA_1.py -o test")
+print(os.system("time -p python3 ./GA_1.py -o test -e 2"))
