@@ -55,8 +55,8 @@ step_max = 1 #max number mutation_step variable can assume
 
 T = 1/(chrom_size**0.5) 
 
-pop_size = 20  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
-n_offspring = 100 # this might be a big number 
+pop_size = 4  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+n_offspring = 16 # this might be a big number 
 
 #Stop criteria:
 n_iter = 1  # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
@@ -132,11 +132,15 @@ def main():
         offspring = reproduction(pop)
         testing_pop(offspring)
         new_gen = Population()
-        new_gen.chrom_list= offspring.chrom_list #ALGORITHM 2 : just offsprings
+        new_gen.chrom_list= offspring.chrom_list #ALGORITHM 2 : ONLY OFFSPRINGS
         new_gen.sort_by_fitness()
         new_gen = deterministic_selection(new_gen)   
 
         print( '\n GENERATION '+ str(count)+' Best: ' + str(round(new_gen.chrom_list[0].fitness,6))+' enemy_life: ' +str(round(pop.chrom_list[0].e_life,6))+' Mean: '+str(round(new_gen.get_fitness_mean(),6))+' Standard Deviation '+str(round(pop.get_fitness_STD(),6)))
+        
+        if new_gen.get_best_fitness() > global_best.fitness:
+                global_best = new_gen.chrom_list[0]
+                #imrovment += 1
         
         pop = new_gen
         
@@ -158,5 +162,9 @@ def main():
         for c in archive:
         # write the data
             writer.writerow(c)
+
+    np.save(experiment_name+'/best_genome',global_best.genome)
+    
+   
     
 main()
