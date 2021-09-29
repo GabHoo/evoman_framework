@@ -26,7 +26,7 @@ headless = True
 if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
-experiment_name = 'GA_1/'+args.experiment_name
+experiment_name = 'GA_1/'+'enemy_'+args.enemy+'/'+args.experiment_name
 if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
 
@@ -59,7 +59,7 @@ pop_size = 100  # quantity of the population - number of chromosomes in our popu
 n_offspring = 400 # this might be a big number 
 
 #Stop criteria:
-n_iter = 15  # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
+n_iter = 1  # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
 #min_fit = 85 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
 
 
