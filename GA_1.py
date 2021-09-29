@@ -138,9 +138,9 @@ def main():
 
         print( '\n GENERATION '+ str(count)+' Best: ' + str(round(new_gen.chrom_list[0].fitness,6))+' enemy_life: ' +str(round(pop.chrom_list[0].e_life,6))+' Mean: '+str(round(new_gen.get_fitness_mean(),6))+' Standard Deviation '+str(round(pop.get_fitness_STD(),6)))
         
-        '''if new_gen.get_best_fitness() > global_best.fitness:
+        if new_gen.get_best_fitness() > global_best.fitness:
                 global_best = new_gen.chrom_list[0]
-                improvment += 1'''
+                #imrovment += 1
         
         pop = new_gen
         
@@ -162,5 +162,7 @@ def main():
         for c in archive:
         # write the data
             writer.writerow(c)
+    
+    return global_best
     
 main()
