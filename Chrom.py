@@ -1,12 +1,13 @@
-from genericpath import getsize
 import numpy as np
 import random
 
 class Chrom(object):
 
-    def __init__(self, genome,r_mut):
+    def __init__(self, genome, mut_step):
+        #creation attributes:
         self.genome = genome
-        self.r_mut=r_mut
+        self.mut_step=mut_step
+
         #after run attributes:
         self.fitness = None
         self.p_life=None
@@ -29,27 +30,36 @@ class Chrom(object):
     def get_size(self):
         return len(self.genome)
 
-    def mutate (self,T):
-        parameter = T
-        s = np.random.normal(0, 0.1, self.get_size())
-        array = parameter*s
-        self.genome= self.genome + array
+    def mutate(self):
+        gaus = np.random.normal(0, 1, self.get_size())
+        self.genome= self.genome + gaus*self.mut_step
+        self.normalize()
 
-    def mutate2 (self,r_mut):
+    def normalize(self):
+        for i in self.genome:
+            if i < -1 :
+                i=-1
+            if i > 1:
+                i=1
+                
+    ''' 
+    def mutate2(self):
+        r_mut = 10 / self.get_size()  # mutation rate, how likely is it for a gene to mutate
         for i in range(self.get_size()):
             if random.random() < r_mut:
-                self.genome[i] = random.uniform(-1, 1)	
+                self.genome[i] = random.uniform(-1, 1)	'''
+   
 
                 
 class Population(object):
         
-    def __init__(self, size=0, chrom_size=0 ,dom_l=0 ,dom_u=0):
+    def __init__(self, size=0, chrom_size=0 ,dom_l=0 ,dom_u=0, step_max=1):
         self.chrom_list=[]
-        if size is not 0:
+        if size != 0:
             for _ in range(size):
                 genome = np.random.uniform(dom_l, dom_u, chrom_size)
-                r_mut=np.random.randint(0,1)
-                self.chrom_list.append(Chrom(genome,r_mut))
+                mut_step = random.uniform(0, step_max)
+                self.chrom_list.append(Chrom(genome, mut_step))
 
     def __iter__(self):
         return Iterator(self.chrom_list)
@@ -81,10 +91,10 @@ class Population(object):
     def get_fitness_STD(self):
         return np.std(np.array([c.fitness for c in self.chrom_list]))
 
-    def mutation(self, r_mut):
+    def mutation(self):
         for chrom in self.chrom_list:
-            #if prob of a chrom to not mutate at all
-            chrom.mutate(r_mut)
+            chrom.mutate()
+            
     def check_equal(self,pop):
         result = True
         if self.get_size() == pop.get_size():
