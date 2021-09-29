@@ -17,6 +17,7 @@ from demo_controller import player_controller
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-o","--output_file_folder", help="Add the name of the Experiment pls you cunt", required=True, dest="experiment_name")
+parser.add_argument("-e","--enemy", help="Add the enemy", required=True, dest="enemy")
 args=parser.parse_args()
 
 
@@ -33,7 +34,7 @@ n_hidden_neurons = 10
 
 # initializes simulation in individual evolution mode, for single static enemy.
 env = Environment(experiment_name=experiment_name,
-                  enemies=[1],
+                  enemies=[int(args.enemy)],
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
                   enemymode="static",
