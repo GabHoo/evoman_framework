@@ -12,7 +12,7 @@ if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 def main():
-    enemy_list=[1,2,5,7,8]
+    enemy_list=[3,5,7]
     bests_GA_1=[]
     bests_GA_2=[]
     n_hidden_neurons=10
@@ -29,7 +29,7 @@ def main():
                   logs="off")
         
         for i in range(1,11):
-            os.system(f"python ./GA_1.py -o Run_{i} -e {enemy}")
+            os.system(f"python3 ./GA_1.py -o Run_{i} -e {enemy}")
             champ = np.load('GA_1/enemy_'+str(enemy)+'/Run_'+str(i)+'/best_genome.npy')
             best_5_f=[]
             for j in range(0,5):
@@ -42,7 +42,7 @@ def main():
 
         
         for i in range(1,11):
-            os.system(f"python ./GA_2.py -o Run_{i} -e {enemy}")
+            os.system(f"python3 ./GA_2.py -o Run_{i} -e {enemy}")
             champ = np.load('GA_2/enemy_'+str(enemy)+'/Run_'+str(i)+'/best_genome.npy')
             best_5_f=[]
             for j in range(0,5):
