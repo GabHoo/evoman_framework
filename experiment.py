@@ -12,7 +12,7 @@ if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 def main():
-    enemy_list=[1,2,5,7,8]
+    enemy_list=[3,5,7]
     bests_GA_1=[]
     bests_GA_2=[]
     n_hidden_neurons=10
