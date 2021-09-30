@@ -43,12 +43,12 @@ def main():
         
         for i in range(1,11):
             os.system(f"python3 ./GA_2.py -o Run_{i} -e {enemy}")
-            champ = np.load('GA_1/enemy_'+str(enemy)+'/Run_'+str(i)+'/best_genome.npy')
+            champ = np.load('GA_2/enemy_'+str(enemy)+'/Run_'+str(i)+'/best_genome.npy')
             best_5_f=[]
             for j in range(0,5):
                 f,p,e,t=env.play(pcont=champ)
                 best_5_f.append(f)
-            with open('GA_1/enemy_'+str(enemy)+'/Run_'+str(i)+'/best_5_f.csv','w') as f:
+            with open('GA_2/enemy_'+str(enemy)+'/Run_'+str(i)+'/best_5_f.csv','w') as f:
                 writer = csv.writer(f)
                 writer.writerow(best_5_f)
                         
