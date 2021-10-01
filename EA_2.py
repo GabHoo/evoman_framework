@@ -23,7 +23,7 @@ headless = True
 if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
-experiment_name = 'GA_1/'+'enemy_'+args.enemy+'/'+args.experiment_name
+experiment_name = 'EA_2/'+'enemy_'+args.enemy+'/'+args.experiment_name
 if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
 
@@ -56,7 +56,7 @@ pop_size = 100  # quantity of the population - number of chromosomes in our popu
 n_offspring = 400 # this might be a big number 
 
 #Stop criteria:
-n_iter = 20  # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
+n_iter = 20 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
 #min_fit = 85 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
 
 
@@ -84,7 +84,7 @@ def crossover (p1, p2): #crossover only handles lists
     for i in range(chrom_size):
         new_genome[i] = (p1.genome[i] + p2.genome[i])/ 2 #mean value of his parents values of the very gene   
     new_mut_step=((p1.mut_step + p2.mut_step) / 2)
-    return Chrom(new_genome, new_mut_step*T)
+    return Chrom(new_genome, new_mut_step*np.random.normal(0,T))
 
 
 def reproduction(parents):
@@ -98,13 +98,13 @@ def reproduction(parents):
     return offspring
     
 
+
 def deterministic_selection(pop):
     pop.chrom_list = pop.chrom_list[:pop_size]
     return pop
 
 
 def main():
-    
     #improvment = -1 #we set this to -1 bc the first imrpovment will for sure take place (line 206)
     count = 0
 
@@ -127,11 +127,10 @@ def main():
         offspring = reproduction(pop)
         testing_pop(offspring)
         new_gen = Population()
-        new_gen.chrom_list= pop.chrom_list+offspring.chrom_list #ALGORITHM 1 : PARENTS + KIDS
-        new_gen.sort_by_fitness()
+        new_gen.chrom_list= offspring.chrom_list #ALGORITHM 2 : ONLY OFFSPRINGS
         #selecting the best half
-        new_gen = deterministic_selection(new_gen)   
-
+        new_gen.sort_by_fitness()
+        
         print( '\n GENERATION '+ str(count)+' Best: ' + str(round(new_gen.chrom_list[0].fitness,6))+' enemy_life: ' +str(round(pop.chrom_list[0].e_life,6))+' Mean: '+str(round(new_gen.get_fitness_mean(),6))+' Standard Deviation '+str(round(pop.get_fitness_STD(),6)))
         
         if new_gen.get_best_fitness() > global_best.fitness:
@@ -151,8 +150,10 @@ def main():
 
     with open(experiment_name+'/Evolution_Archive.csv','w') as f:
         writer = csv.writer(f)
+
         # write the header
         writer.writerow(header)
+
         for c in archive:
         # write the data
             writer.writerow(c)

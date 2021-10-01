@@ -15,7 +15,7 @@ if headless:
 
 '''
 This file will, with each enemy, run 10 times both GAs on the setted up environment
-Then the "champions" of each run will be load to 'champs' list
+Then the "champion" of each run will be load to 'champs' list
 Finally the five best fitnesses of the 10 champions wil be saved in best_5_f.csv, for each run
 '''
 
@@ -40,19 +40,19 @@ def main():
             champs=[]
             #Run Iteration
             for i in range(1,11):
-                os.system(f"python ./GA_{n}.py -o Run_{i} -e {enemy}")
-                champ = np.load(f'GA_{n}/enemy_'+str(enemy)+'/Run_'+str(i)+'/best_genome.npy')
+                os.system(f"python ./EA_{n}.py -o Run_{i} -e {enemy}")
+                champ = np.load(f'EA_{n}/enemy_'+str(enemy)+'/Run_'+str(i)+'/best_genome.npy')
                 champs.append(champ)
             
             for j,c  in enumerate(champs):
                 best_5_f=[]
-                print(f"GA_{n}, Running the best of run ",str(j+1)+" 5 times")
+                print(f"EA_{n}, Running the best of run ",str(j+1)+" 5 times")
                 for z in range(0,5):               
                     f,p,e,t=env.play(pcont=c)
                     best_5_f.append(f)
 
                 '''Storing 5 best fitnesses in best_5_f.csv file'''
-                with open(f'GA_{n}/enemy_'+str(enemy)+'/Run_'+str(j+1)+'/best_5_f.csv','w') as f:
+                with open(f'EA_{n}/enemy_'+str(enemy)+'/Run_'+str(j+1)+'/best_5_f.csv','w') as f:
                     writer = csv.writer(f)
                     writer.writerow(best_5_f)
                     
