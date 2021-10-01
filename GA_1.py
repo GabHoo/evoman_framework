@@ -13,7 +13,7 @@ from environment import Environment
 from demo_controller import player_controller
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-o","--output_file_folder", help="Add the name of the Experiment pls you cunt", required=True, dest="experiment_name")
+parser.add_argument("-o","--output_file_folder", help="Add the name of the Experiment", required=True, dest="experiment_name")
 parser.add_argument("-e","--enemy", help="Add the enemy", required=True, dest="enemy")
 args=parser.parse_args()
 
