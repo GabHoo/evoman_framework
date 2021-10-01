@@ -12,7 +12,7 @@ import argparse
 import csv
 
 sys.path.insert(0, 'evoman')
-from enviroment import Environment
+from environment import Environment
 from demo_controller import player_controller
 
 parser = argparse.ArgumentParser()

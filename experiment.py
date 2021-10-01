@@ -1,9 +1,9 @@
 import os
 import sys
-import subprocess
 import numpy as np
+
 sys.path.insert(0, 'evoman')
-from enviroment import Environment
+from environment import Environment
 from demo_controller import player_controller
 import csv
 
@@ -12,7 +12,7 @@ if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 def main():
-    enemy_list=[1,2,4]
+    enemy_list=[2,3,4]
     n_hidden_neurons=10
 
     for enemy in enemy_list:
