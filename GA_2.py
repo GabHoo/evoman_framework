@@ -1,6 +1,3 @@
-#ok so first attempt to create what could be our final algorithms. Logs system might be primitive but it is there. Just need to change the format.
-#class chromosome is imported so that is fuking easy to sort a chromosome collection by fitness.
-
 """1. Imports"""
 import sys
 import os
@@ -21,7 +18,7 @@ parser.add_argument("-e","--enemy", help="Add the enemy", required=True, dest="e
 args=parser.parse_args()
 
 
-"""2. Setting up the enviroment (lifted from optimization_specialist_demo.py)"""
+"""2. Setting up the enviroment"""
 headless = True
 if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -44,7 +41,7 @@ env = Environment(experiment_name=experiment_name,
                   logs="off")
 
 # default environment fitness is assumed for experiment
-env.state_to_log()  # checks environment state
+env.state_to_log() 
 
 """3. Hyperparameters"""
 #chrom parameters
@@ -65,9 +62,6 @@ n_iter = 20  # number of iterations we want to run the experiment for (set high 
 
 """4. Implementing functions"""
 
-# lifted from optimization_specialist_demo.py, evaluate(chromosome) runs the simulation
-# with a given chromosome as a seed (bias, input) for the player controller; returns fitness of the run.
-    
 def evaluate(chrom):
     f,p,e,t = env.play(pcont=chrom.genome)
     #eventually with coyuld implement shared fintess punishment
