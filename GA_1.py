@@ -129,6 +129,7 @@ def main():
         new_gen = Population()
         new_gen.chrom_list= pop.chrom_list+offspring.chrom_list #ALGORITHM 1 : PARENTS + KIDS
         new_gen.sort_by_fitness()
+        #selecting the best half
         new_gen = deterministic_selection(new_gen)   
 
         print( '\n GENERATION '+ str(count)+' Best: ' + str(round(new_gen.chrom_list[0].fitness,6))+' enemy_life: ' +str(round(pop.chrom_list[0].e_life,6))+' Mean: '+str(round(new_gen.get_fitness_mean(),6))+' Standard Deviation '+str(round(pop.get_fitness_STD(),6)))
@@ -150,10 +151,8 @@ def main():
 
     with open(experiment_name+'/Evolution_Archive.csv','w') as f:
         writer = csv.writer(f)
-
         # write the header
         writer.writerow(header)
-
         for c in archive:
         # write the data
             writer.writerow(c)

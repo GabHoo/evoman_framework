@@ -1,6 +1,7 @@
 import os
 import sys
 import numpy as np
+import time
 
 sys.path.insert(0, 'evoman')
 from environment import Environment
@@ -11,26 +12,21 @@ headless = True
 if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
+
+'''
+This file will, with each enemy, run 10 times both GAs on the setted up environment
+Then the "champions" of each run will be load to 'champs' list
+Finally the five best fitnesses of the 10 champions wil be saved in best_5_f.csv, for each run
+'''
+
 def main():
-    enemy_list=[2,3,4]
+    start_time = time. time()
+
+    enemy_list=[2,4,7]
     n_hidden_neurons=10
 
     for enemy in enemy_list:
-
-        champs_1=[]
-
-        for i in range(1,11):
-            os.system(f"python ./GA_1.py -o Run_{i} -e {enemy}")
-            champ = np.load('GA_1/enemy_'+str(enemy)+'/Run_'+str(i)+'/best_genome.npy')
-            champs_1.append(champ)
-           
-        champs_2=[]
-
-        for i in range(1,11):
-            os.system(f"python ./GA_2.py -o Run_{i} -e {enemy}")
-            champ = np.load('GA_2/enemy_'+str(enemy)+'/Run_'+str(i)+'/best_genome.npy')
-            champs_2.append(champ)
-     
+        '''Setting up environment for each enemy'''
         env = Environment(enemies=[enemy],
                     playermode="ai",
                     player_controller=player_controller(n_hidden_neurons),
@@ -39,27 +35,27 @@ def main():
                     speed="fastest",
                     randomini="yes",
                     logs="off")
+        #Algorithm Iteration
+        for n in range(1,3):
+            champs=[]
+            #Run Iteration
+            for i in range(1,11):
+                os.system(f"python ./GA_{n}.py -o Run_{i} -e {enemy}")
+                champ = np.load(f'GA_{n}/enemy_'+str(enemy)+'/Run_'+str(i)+'/best_genome.npy')
+                champs.append(champ)
+            
+            for j,c  in enumerate(champs):
+                best_5_f=[]
+                print(f"GA_{n}, Running the best of run ",str(j+1)+" 5 times")
+                for z in range(0,5):               
+                    f,p,e,t=env.play(pcont=c)
+                    best_5_f.append(f)
 
-
-        for j,c  in enumerate(champs_1):
-            best_5_f=[]
-            print("GA_1, Running the best of run ",str(j+1)+" 5 times")
-            for z in range(0,5):               
-                f,p,e,t=env.play(pcont=c)
-                best_5_f.append(f)
-            with open('GA_1/enemy_'+str(enemy)+'/Run_'+str(j+1)+'/best_5_f.csv','w') as f:
-                writer = csv.writer(f)
-                writer.writerow(best_5_f)
-
-        for j,c  in enumerate(champs_2):
-            best_5_f=[]
-            print("GA_2, Running the best of run ",str(j+1)+" 5 times")
-            for z in range(0,5):
-                f,p,e,t=env.play(pcont=c)
-                best_5_f.append(f)
-            with open('GA_2/enemy_'+str(enemy)+'/Run_'+str(j+1)+'/best_5_f.csv','w') as f:
-                writer = csv.writer(f)
-                writer.writerow(best_5_f)
-        
-                        
+                '''Storing 5 best fitnesses in best_5_f.csv file'''
+                with open(f'GA_{n}/enemy_'+str(enemy)+'/Run_'+str(j+1)+'/best_5_f.csv','w') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(best_5_f)
+                    
+    print("--- %s seconds ---" % (time. time() - start_time))
+          
 main()

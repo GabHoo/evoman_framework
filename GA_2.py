@@ -62,6 +62,7 @@ n_iter = 20  # number of iterations we want to run the experiment for (set high 
 
 """4. Implementing functions"""
 
+#simulates a play in the game with given chrom
 def evaluate(chrom):
     f,p,e,t = env.play(pcont=chrom.genome)
     #eventually with coyuld implement shared fintess punishment
@@ -127,9 +128,9 @@ def main():
         testing_pop(offspring)
         new_gen = Population()
         new_gen.chrom_list= offspring.chrom_list #ALGORITHM 2 : ONLY OFFSPRINGS
+        #selecting the best half
         new_gen.sort_by_fitness()
-        new_gen = deterministic_selection(new_gen)   
-
+        
         print( '\n GENERATION '+ str(count)+' Best: ' + str(round(new_gen.chrom_list[0].fitness,6))+' enemy_life: ' +str(round(pop.chrom_list[0].e_life,6))+' Mean: '+str(round(new_gen.get_fitness_mean(),6))+' Standard Deviation '+str(round(pop.get_fitness_STD(),6)))
         
         if new_gen.get_best_fitness() > global_best.fitness:
