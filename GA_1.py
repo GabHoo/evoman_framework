@@ -16,17 +16,21 @@ from enviroment import Environment
 from demo_controller import player_controller
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-o","--output_file_folder", help="Add the name of the Experiment pls you cunt", required=True, dest="experiment_name")
-parser.add_argument("-e","--enemy", help="Add the enemy", required=True, dest="enemy")
+parser.add_argument("-o","--output_file_folder", help="Add the name of the Experiment pls", required=True, dest="experiment_name")
+parser.add_argument("-e","--enemy", help="Add the enemy list separated by dash", required=True, dest="enemy")
 args=parser.parse_args()
 
 
 """2. Setting up the enviroment (lifted from optimization_specialist_demo.py)"""
 headless = True
 if headless:
-    os.environ["SDL_VIDEODRIVER"] = "dummy"
+    os.environ["SDL_VIDEODRIVER"] = "dummy" 
+    
 
-experiment_name = 'GA_1/'+'enemy_'+args.enemy+'/'+args.experiment_name
+en = [int(i) for i in args.enemy.split("-")] #OMG IM SUCH A PYTHON SLUT
+print(en)
+
+experiment_name = 'GA_1/'+'enemies'+ str(en)+'/'+args.experiment_name
 if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
 
@@ -34,12 +38,13 @@ n_hidden_neurons = 10
 
 # initializes simulation in individual evolution mode, for single static enemy.
 env = Environment(experiment_name=experiment_name,
-                  enemies=[int(args.enemy)],
+                  enemies=en,
+                  multiplemode="yes",
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
                   enemymode="static",
                   level=2,
-                  speed="fastest",
+                  speed="FASTEST",
                   randomini="yes",
                   logs="off")
 
@@ -55,11 +60,11 @@ step_max = 1 #max number mutation_step variable can assume
 
 T = 1/(chrom_size**0.5) 
 
-pop_size = 100  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
-n_offspring = 400 # this might be a big number 
+pop_size = 4  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+n_offspring = 12 # this might be a big number 
 
 #Stop criteria:
-n_iter = 20  # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
+n_iter = 5  # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
 #min_fit = 85 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
 
 
