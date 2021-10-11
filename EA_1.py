@@ -79,11 +79,47 @@ def testing_pop(pop):
 
 """Evolution fuctionss"""
 
-def crossover (p1, p2): #crossover only handles lists 
+def crossover (p1, p2):  
     new_genome = np.empty(chrom_size)
+    new_mut_step=((p1.mut_step + p2.mut_step) / 2)
     for i in range(chrom_size):
         new_genome[i] = (p1.genome[i] + p2.genome[i])/ 2 #mean value of his parents values of the very gene   
+    return Chrom(new_genome, new_mut_step*np.random.normal(0,T))
+
+def new_crossover (p1, p2): 
+    j = 0.1
+    rand_n =  random.uniform [0.5 - j, 0.5 +j] 
+    new_genome = np.empty(chrom_size)
     new_mut_step=((p1.mut_step + p2.mut_step) / 2)
+    for i in range(chrom_size):
+        new_genome[i] = (rand_n*p1.genome[i] + (1-rand_n)*p2.genome[i])   
+    return Chrom(new_genome, new_mut_step*np.random.normal(0,T))
+
+def new_crossoverV2 (p1, p2):  
+    j = 0.1
+    k = 0.01
+    
+    new_genome = np.empty(chrom_size)
+    new_mut_step=((p1.mut_step + p2.mut_step) / 2)
+    
+    for i in range(chrom_size):
+        rand_n =  random.uniform [0,1] 
+        if rand_n < k:
+            new_genome[i] = random.uniform [-1,1]     
+        else:
+            rand_n2 =  random.uniform [0.5 - j, 0.5 +j] 
+            new_genome[i] = (rand_n2*p1.genome[i] + (1-rand_n2)*p2.genome[i])   
+    return Chrom(new_genome, new_mut_step*np.random.normal(0,T))
+
+def discrite_crossover(p1, p2):
+    new_genome = np.empty(chrom_size)
+    new_mut_step=((p1.mut_step + p2.mut_step) / 2)
+    for i in range(chrom_size):
+        rand_n =  random.uniform [0,1] 
+        if rand_n < 0.5:
+            new_genome[i] = p1.genome[i]
+        else:
+            new_genome[i] = p2.genome[i]
     return Chrom(new_genome, new_mut_step*np.random.normal(0,T))
 
 
