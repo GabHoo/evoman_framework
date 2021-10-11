@@ -7,6 +7,7 @@ from Chrom import Population
 from Chrom import Chrom
 import argparse
 import csv
+import math
 
 sys.path.insert(0, 'evoman')
 from environment import Environment
@@ -52,11 +53,11 @@ step_max = 1 #max number mutation_step variable can assume
 
 T = 1/(chrom_size**0.5) 
 
-pop_size = 100  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
-n_offspring = 400 # this might be a big number 
+pop_size = 20  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+n_offspring = 40 # this might be a big number 
 
 #Stop criteria:
-n_iter = 20 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
+n_iter = 10 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
 #min_fit = 85 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
 
 
@@ -79,29 +80,38 @@ def testing_pop(pop):
 
 """Evolution fuctionss"""
 
-def crossover (p1, p2):  
+def old_crossover (p1, p2):  
     new_genome = np.empty(chrom_size)
     new_mut_step=((p1.mut_step + p2.mut_step) / 2)
     for i in range(chrom_size):
         new_genome[i] = (p1.genome[i] + p2.genome[i])/ 2 #mean value of his parents values of the very gene   
     return Chrom(new_genome, new_mut_step*np.random.normal(0,T))
 
-def new_crossover (p1, p2): 
-    j = 0.1
-    rand_n =  random.uniform [0.5 - j, 0.5 +j] 
+def new_crossover (p1, p2):
+
+    threshold = 0.001 #Minimum Value for the mut_step (maybe we have to put a bigger value)
+    j = 0.1 #mutation parameter
+
+    #creating genome
     new_genome = np.empty(chrom_size)
-    new_mut_step=((p1.mut_step + p2.mut_step) / 2)
     for i in range(chrom_size):
-        new_genome[i] = (rand_n*p1.genome[i] + (1-rand_n)*p2.genome[i])   
-    return Chrom(new_genome, new_mut_step*np.random.normal(0,T))
+        rand_n =  random.uniform [0.5 - j, 0.5 +j] 
+        new_genome[i] = (rand_n*p1.genome[i] + (1-rand_n)*p2.genome[i])
+
+    #calculating mut_step
+    new_mut_step = ((p1.mut_step + p2.mut_step) / 2)* math.exp(np.random.normal(0,T))
+    if new_mut_step < threshold:
+        new_mut_step = threshold
+
+    return Chrom(new_genome, new_mut_step)
 
 def new_crossoverV2 (p1, p2):  
-    j = 0.1
-    k = 0.01
+    threshold = 0.001 #Minimum Value for the mut_step
+    j = 0.1 #mutation parameter
+    k = 0.01 #crossover type parameter
     
+    #creating genome
     new_genome = np.empty(chrom_size)
-    new_mut_step=((p1.mut_step + p2.mut_step) / 2)
-    
     for i in range(chrom_size):
         rand_n =  random.uniform [0,1] 
         if rand_n < k:
@@ -109,18 +119,32 @@ def new_crossoverV2 (p1, p2):
         else:
             rand_n2 =  random.uniform [0.5 - j, 0.5 +j] 
             new_genome[i] = (rand_n2*p1.genome[i] + (1-rand_n2)*p2.genome[i])   
+    
+    #calculating mut_step
+    new_mut_step = ((p1.mut_step + p2.mut_step) / 2)* math.exp(np.random.normal(0,T))
+    if new_mut_step < threshold:
+        new_mut_step = threshold
+
     return Chrom(new_genome, new_mut_step*np.random.normal(0,T))
 
 def discrite_crossover(p1, p2):
+    threshold = 0.001 #Minimum Value for the mut_step
+
+    #creating genome
     new_genome = np.empty(chrom_size)
-    new_mut_step=((p1.mut_step + p2.mut_step) / 2)
     for i in range(chrom_size):
         rand_n =  random.uniform [0,1] 
         if rand_n < 0.5:
             new_genome[i] = p1.genome[i]
         else:
             new_genome[i] = p2.genome[i]
-    return Chrom(new_genome, new_mut_step*np.random.normal(0,T))
+    
+    #calculating mut_step
+    new_mut_step = ((p1.mut_step + p2.mut_step) / 2)* math.exp(np.random.normal(0,T))
+    if new_mut_step < threshold:
+        new_mut_step = threshold
+
+    return Chrom(new_genome, new_mut_step)
 
 
 def reproduction(parents):
@@ -128,7 +152,7 @@ def reproduction(parents):
     while offspring.get_size() < n_offspring:
         p1 = parents.chrom_list[random.randint(0,parents.get_size()-1)]
         p2 = parents.chrom_list[random.randint(0,parents.get_size()-1)]
-        c = crossover(p1, p2)
+        c = new_crossover(p1, p2)
         offspring.add_chroms(c)
     offspring.mutation()
     return offspring
