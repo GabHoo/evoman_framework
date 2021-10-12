@@ -15,7 +15,7 @@ from demo_controller import player_controller
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-o","--output_file_folder", help="Add the name of the Experiment", required=True, dest="experiment_name")
-parser.add_argument("-e","--enemy", help="Add the enemy", required=True, dest="enemy")
+parser.add_argument("-e","--enemy", help="Add the enemy list separated by dash", required=True, dest="enemy")
 args=parser.parse_args()
 
 
@@ -24,7 +24,10 @@ headless = True
 if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
-experiment_name = 'EA_1/'+'enemy_'+args.enemy+'/'+args.experiment_name
+
+en = [int(i) for i in args.enemy.split("-")] #OMG IM SUCH A PYTHON SLUT
+
+experiment_name = 'TASK2_EA_1/'+'enemies'+ str(en)+'/'+args.experiment_name
 if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
 
@@ -32,7 +35,8 @@ n_hidden_neurons = 10
 
 # initializes simulation in individual evolution mode, for single static enemy.
 env = Environment(experiment_name=experiment_name,
-                  enemies=[int(args.enemy)],
+                  enemies=en,
+                  multiplemode="yes",
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
                   enemymode="static",
@@ -53,8 +57,8 @@ step_max = 1 #max number mutation_step variable can assume
 
 T = 1/(chrom_size**0.5) 
 
-pop_size = 20  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
-n_offspring = 40 # this might be a big number 
+pop_size = 5  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+n_offspring = 10 # this might be a big number 
 
 #Stop criteria:
 n_iter = 10 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
