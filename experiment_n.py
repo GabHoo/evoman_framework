@@ -37,23 +37,23 @@ def main():
                     logs="off")
         #Algorithm Iteration
         #for n in range(1,3):
-        n=1
+        n="n"
         champs=[]
         #Run Iteration
-        for i in range(1,5):
-            os.system(f"python ./EA_{n}.py -o Run_{i} -e {enemy}")
-            champ = np.load(f'EA_{n}/enemy_'+str(enemy)+'/Run_'+str(i)+'/best_genome.npy')
+        for i in range(1,11):
+            os.system(f"python ./EA_n.py -o Run_{i} -e {enemy}")
+            champ = np.load(f'EA_n/enemy_'+str(enemy)+'/Run_'+str(i)+'/best_genome.npy')
             champs.append(champ)
         
         for j,c  in enumerate(champs):
             best_5_f=[]
-            print(f"EA_{n}, Running the best of run ",str(j+1)+" 5 times")
+            print(f"EA_n, Running the best of run ",str(j+1)+" 5 times")
             for z in range(0,5):               
                 f,p,e,t=env.play(pcont=c)
                 best_5_f.append(f)
 
             '''Storing 5 best fitnesses in best_5_f.csv file'''
-            with open(f'EA_{n}/enemy_'+str(enemy)+'/Run_'+str(j+1)+'/best_5_f.csv','w') as f:
+            with open(f'EA_n/enemy_'+str(enemy)+'/Run_'+str(j+1)+'/best_5_f.csv','w') as f:
                 writer = csv.writer(f)
                 writer.writerow(best_5_f)
                     
