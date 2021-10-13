@@ -21,7 +21,7 @@ Finally the five best fitnesses of the 10 champions wil be saved in best_5_f.csv
 
 def main():
     start_time = time. time()
-
+    
     enemy_list=[1]
     n_hidden_neurons=10
 
