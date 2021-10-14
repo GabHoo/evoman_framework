@@ -9,6 +9,7 @@ import argparse
 import csv
 import math
 
+
 sys.path.insert(0, 'evoman')
 from environment import Environment
 from demo_controller import player_controller
