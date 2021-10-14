@@ -25,7 +25,7 @@ if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 
-#en = [int(i) for i in args.enemy.split("-")] #OMG IM SUCH A PYTHON SLUT
+en = [int(i) for i in args.enemy.split("-")] #OMG IM SUCH A PYTHON SLUT
 
 experiment_name = 'EA_n/'+'enemy_'+ args.enemy+'/'+args.experiment_name
 if not os.path.exists(experiment_name):
@@ -35,8 +35,8 @@ n_hidden_neurons = 10
 
 # initializes simulation in individual evolution mode, for single static enemy.
 env = Environment(experiment_name=experiment_name,
-                  enemies=[int(args.enemy)],
-                  #multiplemode="yes",
+                  enemies=en,
+                  multiplemode="yes",
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
                   enemymode="static",
@@ -58,11 +58,11 @@ step_max = 1 #max number mutation_step variable can assume
 T = 1/math.sqrt(2*math.sqrt(chrom_size))
 T_prim= 1/math.sqrt(2*chrom_size) 
 
-pop_size = 4  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+pop_size = 1  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
 n_offspring = pop_size*2 # this might be a big number 
 
 #Stop criteria:
-n_iter = 2 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
+n_iter = 1 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
 #min_fit = 85 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
 
 
@@ -85,20 +85,10 @@ def testing_pop(pop):
 
 """Evolution fuctionss"""
 
-def old_crossover (p1, p2):  
-    new_genome = np.empty(chrom_size)
-    new_mut_step=((p1.mut_step + p2.mut_step) / 2)
-    for i in range(chrom_size):
-        new_genome[i] = (p1.genome[i] + p2.genome[i])/ 2 #mean value of his parents values of the very gene   
-    
-    return Chrom_N(new_genome, new_mut_step*np.random.normal(0,T))
-
-
-
-def new_crossover (p1, p2):  
-    threshold = 0.001 #Minimum Value for the mut_step
-    j = 0.1 #mutation parameter 
-    k = 0.001 #crossover type parameter
+def crossover (p1, p2):  
+    threshold = 0.01 #Minimum Value for the mut_step
+    j = 0.3 #mutation parameter 
+    k = 0.2 #crossover type parameter
     bias = np.random.normal(0, 1, 1)
     new_genome = np.empty(chrom_size)
     new_mut_steps = np.empty(chrom_size)
@@ -120,32 +110,13 @@ def new_crossover (p1, p2):
 
     return Chrom_N(new_genome, new_mut_steps, bias)
 
-'''
-    def discrite_crossover(p1, p2):
-    threshold = 0.001 #Minimum Value for the mut_step
-
-    #creating genome
-    new_genome = np.empty(chrom_size)
-    for i in range(chrom_size):
-        rand_n =  random.uniform (0,1)
-        if rand_n < 0.5:
-            new_genome[i] = p1.genome[i]
-        else:
-            new_genome[i] = p2.genome[i]
-    #calculating mut_step
-    new_mut_step = ((p1.mut_step + p2.mut_step) / 2)* math.exp(np.random.normal(0,T))
-    if new_mut_step < threshold:
-        new_mut_step = threshold
-
-    return Chrom(new_genome, new_mut_step)
-'''
 
 def reproduction(parents):
     offspring = Population()
     while offspring.get_size() < n_offspring:
         p1 = parents.chrom_list[random.randint(0,parents.get_size()-1)]
         p2 = parents.chrom_list[random.randint(0,parents.get_size()-1)]
-        c = new_crossover(p1, p2)
+        c = crossover(p1, p2)
         offspring.add_chroms(c)
     offspring.mutation()
     return offspring
