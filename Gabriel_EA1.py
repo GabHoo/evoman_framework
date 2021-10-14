@@ -8,6 +8,7 @@ from Chrom import Chrom
 import argparse
 import csv
 import math
+from scipy.spatial import distance_matrix
 
 sys.path.insert(0, 'evoman')
 from environment import Environment
@@ -27,7 +28,7 @@ if headless:
 
 en = [int(i) for i in args.enemy.split("-")] #OMG IM SUCH A PYTHON SLUT
 
-experiment_name = 'TASK2_EA_1/'+'enemies'+ str(en)+'/'+args.experiment_name
+experiment_name = 'Gabriel_EA_1/'+'enemies'+ str(en)+'/'+args.experiment_name
 if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
 
@@ -57,13 +58,15 @@ step_max = 1 #max number mutation_step variable can assume
 
 T = 1/(chrom_size**0.5) 
 
-pop_size = 5  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
-n_offspring = 10 # this might be a big number 
+pop_size = 70  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+n_offspring = 280 # this might be a big number 
 
 #Stop criteria:
-n_iter = 10 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
+n_iter = 20 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
 #min_fit = 85 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
 
+sigma=7 #I have no clue
+alpha=1
 
 """4. Implementing functions"""
 
@@ -133,17 +136,46 @@ def discrite_crossover(p1, p2):
 
     return Chrom(new_genome, new_mut_step)
 
+def uniform_crossover(p1,p2):
+    pt = random.randint(1, p1.get_size())
+    threshold = 0.001
+    c1=np.concatenate((p1.genome[:pt],p2.genome[pt:]), axis=None)
+    c2=np.concatenate((p2.genome[:pt],p1.genome[pt:]), axis=None)       
+    """  c1 = p1.genome[:pt] + p2.genome[pt:]
+    c2 = p2.genome[:pt] + p1.genome[pt:]"""
+    new_mut_step = ((p1.mut_step + p2.mut_step) / 2)* math.exp(np.random.normal(0,T))
+    if new_mut_step < threshold:
+        new_mut_step = threshold
+    return Chrom(c1,new_mut_step), Chrom(c2,new_mut_step)
+
 
 def reproduction(parents):
     offspring = Population()
     while offspring.get_size() < n_offspring:
         p1 = parents.chrom_list[random.randint(0,parents.get_size()-1)]
         p2 = parents.chrom_list[random.randint(0,parents.get_size()-1)]
-        c = old_crossover(p1, p2)
-        offspring.add_chroms(c)
+        c1 = new_crossoverV2(p1, p2)
+        offspring.add_chroms(c1)
     offspring.mutation()
     return offspring
     
+    
+#fitness sharing based on genotypical distance
+def sharing(distance, sigma, alpha):
+    res = 0
+    if distance<sigma:
+        res += 1 - (distance/sigma)**alpha
+    return res
+
+def shared_fitness(pop, sigma, alpha):
+    for i in pop.chrom_list:   
+        dists=distance_matrix([i.genome], [c.genome for c in pop.chrom_list])[0]
+        shares = [sharing(d, sigma, alpha) for d in dists]
+        i.fitness=i.fitness/sum(shares)
+
+
+
+
 
 def deterministic_selection(pop):
     pop.chrom_list = pop.chrom_list[:pop_size]
@@ -175,6 +207,7 @@ def main():
         testing_pop(offspring)
         new_gen = Population()
         new_gen.chrom_list= pop.chrom_list+offspring.chrom_list #ALGORITHM 1 : PARENTS + KIDS
+        shared_fitness(new_gen,sigma,alpha)
         new_gen.sort_by_fitness()
         #selecting the best half
         new_gen = deterministic_selection(new_gen)   
