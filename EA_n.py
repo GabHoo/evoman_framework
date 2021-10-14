@@ -25,7 +25,7 @@ if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 
-#en = [int(i) for i in args.enemy.split("-")] #OMG IM SUCH A PYTHON SLUT
+en = [int(i) for i in args.enemy.split("-")] #OMG IM SUCH A PYTHON SLUT
 
 experiment_name = 'EA_n/'+'enemy_'+ args.enemy+'/'+args.experiment_name
 if not os.path.exists(experiment_name):
@@ -35,8 +35,8 @@ n_hidden_neurons = 10
 
 # initializes simulation in individual evolution mode, for single static enemy.
 env = Environment(experiment_name=experiment_name,
-                  enemies=[int(args.enemy)],
-                  #multiplemode="yes",
+                  enemies=en,
+                  multiplemode="yes",
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
                   enemymode="static",
@@ -58,11 +58,11 @@ step_max = 1 #max number mutation_step variable can assume
 T = 1/math.sqrt(2*math.sqrt(chrom_size))
 T_prim= 1/math.sqrt(2*chrom_size) 
 
-pop_size = 4  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+pop_size = 80  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
 n_offspring = pop_size*2 # this might be a big number 
 
 #Stop criteria:
-n_iter = 2 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
+n_iter = 20 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
 #min_fit = 85 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
 
 
