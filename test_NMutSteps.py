@@ -44,11 +44,11 @@ def main():
     print("kid.genome",kid.genome)
     print("kid.mut_step",kid.mut_step)
 
-    Mutated_kid = kid.mutate()
+    kid.mutate()
 
     print("Mutated_kid")
-    print("Mutated_kid.genome",Mutated_kid.genome)
-    print("Mutated_kid.mut_step",Mutated_kid.mut_step)
+    print("Mutated_kid.genome",kid.genome)
+    print("Mutated_kid.mut_step",kid.mut_step)
 
 def crossover (p1, p2):  
 
