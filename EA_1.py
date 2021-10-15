@@ -25,7 +25,7 @@ if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 
-#en = [int(i) for i in args.enemy.split("-")] #OMG IM SUCH A PYTHON SLUT
+en = [int(i) for i in args.enemy.split("-")] #OMG IM SUCH A PYTHON SLUT
 
 experiment_name = 'EA_1/'+'enemy_'+args.enemy+'/'+args.experiment_name
 if not os.path.exists(experiment_name):
@@ -35,8 +35,8 @@ n_hidden_neurons = 10
 
 # initializes simulation in individual evolution mode, for single static enemy.
 env = Environment(experiment_name=experiment_name,
-                  enemies=[int(args.enemy)],
-                  #multiplemode="yes",
+                  enemies=en,
+                  multiplemode="yes",
                   playermode="ai",
                   player_controller = player_controller(n_hidden_neurons),
                   enemymode="static",
@@ -95,9 +95,9 @@ def old_crossover (p1, p2):
 
 
 def new_crossover (p1, p2):  
-    threshold = 0.001 #Minimum Value for the mut_step
-    j = 0.1 #mutation parameter 
-    k = 0.001 #crossover type parameter
+    threshold = 0.01 #Minimum Value for the mut_step
+    j = 0.3 #mutation parameter 
+    k = 0.2 #crossover type parameter
     
     #creating genome
     new_genome = np.empty(chrom_size)
@@ -153,6 +153,41 @@ def deterministic_selection(pop):
     pop.chrom_list = pop.chrom_list[:pop_size]
     return pop
 
+'''
+We can do smth like this, tell me if you agree
+'''
+
+'''
+IDEA
+
+function that iniside a population,
+will look at similar familys of fitness,
+and will eliminate some of those chroms
+
+To avoid having so many similar fitnesses
+
+
+'''
+# kills the worst genomes, and replace with new best/random solutions
+def doomsday(pop,fit_pop):
+
+    worst = int(pop_size/4)  # a quarter of the population
+    order = np.argsort(fit_pop)
+    orderasc = order[0:worst]
+
+    for o in orderasc:
+        for j in range(0,chrom_size):
+            pro = np.random.uniform(0,1)
+            if np.random.uniform(0,1)  <= pro:
+                pop[o][j] = np.random.uniform(dom_l, dom_u) # random dna, uniform dist.
+            else:
+                pop[o][j] = pop[order[-1:]][0][j] # dna from best
+
+        fit_pop[o]=evaluate([pop[o]])
+
+    return pop,fit_pop
+'''  
+'''
 
 def main():
     
@@ -178,7 +213,23 @@ def main():
         offspring = reproduction(pop)
         testing_pop(offspring)
         new_gen = Population()
+        
         new_gen.chrom_list= pop.chrom_list+offspring.chrom_list #ALGORITHM 1 : PARENTS + KIDS
+        
+        
+        '''
+
+        Mix plus/comma selection IDEA
+
+        instead of having just one type,
+        we would start with one type and
+        than if there are no more improvments
+        we change to the other one. 
+
+        also we could start using the lack of improvments
+        to stop our algorithm, instead of a number of iterations
+
+        '''
         new_gen.sort_by_fitness()
         #selecting the best half
         new_gen = deterministic_selection(new_gen)   
