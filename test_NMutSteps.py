@@ -9,7 +9,7 @@ sys.path.insert(0, 'evoman')
 from evoman.environment import Environment
 from demo_controller import player_controller
 
-n_hidden_neurons = 10
+n_hidden_neurons = 5
 headless = True
 if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -29,8 +29,8 @@ chrom_size = (env.get_num_sensors() + 1) * n_hidden_neurons + (n_hidden_neurons 
  
 
 def main():
-    p1 = Chrom_N(np.random.uniform(-1, 1, chrom_size, ndigits=2),np.random.uniform(0, 1, chrom_size, ndigits=2),round(np.random.normal(0, 1),ndigits=6))
-    p2 = Chrom_N(np.random.uniform(-1, 1, chrom_size, ndigits=2),np.random.uniform(0, 1, chrom_size, ndigits=2),round(np.random.normal(0, 1),ndigits=6))
+    p1 = Chrom_N(np.random.uniform(-1, 1, chrom_size),np.random.uniform(0, 1, chrom_size),round(np.random.normal(0, 1),ndigits=6))
+    p2 = Chrom_N(np.random.uniform(-1, 1, chrom_size),np.random.uniform(0, 1, chrom_size ),round(np.random.normal(0, 1),ndigits=6))
     '''
     print("PARENT 1")
     print("p1.genome",p1.genome)
@@ -47,12 +47,14 @@ def main():
     
 '''
     kid = crossover(p1,p2)
-    print("kid")
+    kid.mutate()
+    print("mutated_genome[0]", kid.genome[0])    
+    print("new_mut_steps[0]", kid.mut_step[0])
+    print("kid bias", kid.bias)
+    #print("kid")
     #print("kid.genome",kid.genome)
     #print("kid.mut_step",kid.mut_step)
-    kid.normalize()
-    kid.mutate()
-    print("Mutated_kid")
+    
     #print("Mutated_kid.genome",kid.genome)
     #print("Mutated_kid.mut_step",kid.mut_step)
 
@@ -76,17 +78,23 @@ def crossover (p1, p2):
             new_genome[i] = round((rand_n2*p1.genome[i] + (1-rand_n2)*p2.genome[i]), ndigits=6)   
             pre_mut_step = ((p1.mut_step[i] + p2.mut_step[i]) / 2) 
             print(f"i={i}]")
-            print(f"p1.mut_step[{i}]",p1.mut_step[i])
-            print(f"p2.mut_step[{i}]",p2.mut_step[i])
-            print("pre_mut_step", pre_mut_step)
+
+            #print(f"p1.mut_step[{i}]",p1.mut_step[i])
+            #print(f"p2.mut_step[{i}]",p2.mut_step[i])
+            #print("pre_mut_step", pre_mut_step)
+
+            #print(f"p1.genome[{i}]",p1.genome[i])
+            #print(f"p2.new_genome[{i}]",p2.genome[i])
+            #print("new_genome[i]", new_genome[i])
+
             #s1’ (new, mutated s1) = s1_old * e ^ (T’ * BIAS + T * N(0,1))
-            #new_mut_steps[i] = ((p1.mut_step[i] + p2.mut_step[i]) / 2) 
             new_mut_steps[i] = round(pre_mut_step* math.exp(T_prim * bias + T * np.random.normal(0,T)), ndigits=6)
             if new_mut_steps[i] < threshold:
                 new_mut_steps[i] = threshold
             print(f"new_mut_steps[{i}]",new_mut_steps[i])
-    print("new_mut_steps", new_mut_steps)
-
+    print("new_genome[0]", new_genome[0])    
+    print("new_mut_steps[0]", new_mut_steps[0])
     return Chrom_N(new_genome, new_mut_steps, bias)
+    
 
 main()

@@ -59,11 +59,11 @@ step_max = 1 #max number mutation_step variable can assume
 T = 1/math.sqrt(2*math.sqrt(chrom_size))
 T_prim= 1/math.sqrt(2*chrom_size) 
 
-pop_size = 1  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+pop_size = 20  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
 n_offspring = pop_size*2 # this might be a big number 
 
 #Stop criteria:
-n_iter = 1 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
+n_iter = 10 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
 #min_fit = 85 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
 
 
@@ -87,10 +87,10 @@ def testing_pop(pop):
 """Evolution fuctionss"""
 
 def crossover (p1, p2):  
-    threshold = 0.01 #Minimum Value for the mut_step
+    threshold = 0.001 #Minimum Value for the mut_step
     j = 0.3 #mutation parameter 
     k = 0.2 #crossover type parameter
-    bias = np.random.normal(0, 1, 1)
+    bias = np.random.normal(0, 1)
     new_genome = np.empty(chrom_size)
     new_mut_steps = np.empty(chrom_size)
 
@@ -152,7 +152,7 @@ def main():
         offspring = reproduction(pop)
         testing_pop(offspring)
         new_gen = Population()
-        new_gen.chrom_list= pop.chrom_list+offspring.chrom_list #ALGORITHM 1 : PARENTS + KIDS
+        new_gen.chrom_list= offspring.chrom_list #ALGORITHM 1 : PARENTS + KIDS
         new_gen.sort_by_fitness()
         #selecting the best half
         new_gen = deterministic_selection(new_gen)   
