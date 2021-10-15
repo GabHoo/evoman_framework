@@ -37,7 +37,7 @@ n_hidden_neurons = 10
 # initializes simulation in individual evolution mode, for single static enemy.
 env = Environment(experiment_name=experiment_name,
                   enemies=en,
-                  multiplemode="yes",
+                  #multiplemode="yes",
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
                   enemymode="static",
@@ -58,8 +58,8 @@ step_max = 1 #max number mutation_step variable can assume
 
 T = 1/(chrom_size**0.5) 
 
-pop_size = 70  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
-n_offspring = 280 # this might be a big number 
+pop_size = 80  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+n_offspring = 320 # this might be a big number 
 
 #Stop criteria:
 n_iter = 20 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
@@ -206,8 +206,15 @@ def main():
         offspring = reproduction(pop)
         testing_pop(offspring)
         new_gen = Population()
-        new_gen.chrom_list= pop.chrom_list+offspring.chrom_list #ALGORITHM 1 : PARENTS + KIDS
-        shared_fitness(new_gen,sigma,alpha)
+
+        if count<n_iter/2:
+            print("only taking offsprings")
+            new_gen.chrom_list= offspring.chrom_list #ALGORITHM 1 : PARENTS + KIDS
+        else:
+            print("taking parents and offsprings")
+            new_gen.chrom_list= pop.chrom_list+offspring.chrom_list
+
+        #shared_fitness(new_gen,sigma,alpha)
         new_gen.sort_by_fitness()
         #selecting the best half
         new_gen = deterministic_selection(new_gen)   
