@@ -29,56 +29,63 @@ chrom_size = (env.get_num_sensors() + 1) * n_hidden_neurons + (n_hidden_neurons 
  
 
 def main():
-    p1 = Chrom_N(np.random.uniform(-1, 1, chrom_size),np.random.uniform(0, 1, chrom_size),np.random.normal(0, 1, 1))
-    p2 = Chrom_N(np.random.uniform(-1, 1, chrom_size),np.random.uniform(0, 1, chrom_size),np.random.normal(0, 1, 1))
+    p1 = Chrom_N(np.random.uniform(-1, 1, chrom_size, ndigits=2),np.random.uniform(0, 1, chrom_size, ndigits=2),round(np.random.normal(0, 1),ndigits=6))
+    p2 = Chrom_N(np.random.uniform(-1, 1, chrom_size, ndigits=2),np.random.uniform(0, 1, chrom_size, ndigits=2),round(np.random.normal(0, 1),ndigits=6))
+    '''
     print("PARENT 1")
     print("p1.genome",p1.genome)
     print("p1.mut_step",p1.mut_step)
 
+    p1.mutate()
+    print("Mutated_kid")
+    print("Mutated_kid.genome",p1.genome)
+    print("Mutated_kid.mut_step",p1.mut_step)
+
     print("PARENT 2")
     print("p2.genome",p2.genome)
     print("p2.mut_step",p2.mut_step)
+    
+'''
     kid = crossover(p1,p2)
-
     print("kid")
-    print("kid.genome",kid.genome)
-    print("kid.mut_step",kid.mut_step)
-
+    #print("kid.genome",kid.genome)
+    #print("kid.mut_step",kid.mut_step)
+    kid.normalize()
     kid.mutate()
-
     print("Mutated_kid")
-    print("Mutated_kid.genome",kid.genome)
-    print("Mutated_kid.mut_step",kid.mut_step)
+    #print("Mutated_kid.genome",kid.genome)
+    #print("Mutated_kid.mut_step",kid.mut_step)
 
 def crossover (p1, p2):  
-
     threshold = 0.01 #Minimum Value for the mut_step
-
     T = 1/math.sqrt(2*math.sqrt(chrom_size))
     T_prim= 1/math.sqrt(2*chrom_size) 
-
     j = 0.3 #mutation parameter 
-
     k = 0.2 #crossover type parameter
-
-    bias = np.random.normal(0, 1, 1)
+    #1
+    bias = round(np.random.normal(0, 1), ndigits=6)
+    print("bias: ",bias)
     new_genome = np.empty(chrom_size)
     new_mut_steps = np.empty(chrom_size)
-
     for i in range(chrom_size):
         rand_n =  random.uniform (0,1) 
         if rand_n < k:
             new_genome[i] = random.uniform(-1,1)     
         else:
             rand_n2 =  random.uniform (0.5 - j, 0.5 +j) 
-            new_genome[i] = (rand_n2*p1.genome[i] + (1-rand_n2)*p2.genome[i])   
-            pre_mut_step = ((p1.mut_step[i] + p2.mut_step[i]) / 2)
-
+            new_genome[i] = round((rand_n2*p1.genome[i] + (1-rand_n2)*p2.genome[i]), ndigits=6)   
+            pre_mut_step = ((p1.mut_step[i] + p2.mut_step[i]) / 2) 
+            print(f"i={i}]")
+            print(f"p1.mut_step[{i}]",p1.mut_step[i])
+            print(f"p2.mut_step[{i}]",p2.mut_step[i])
+            print("pre_mut_step", pre_mut_step)
             #s1’ (new, mutated s1) = s1_old * e ^ (T’ * BIAS + T * N(0,1))
-            new_mut_steps[i] = pre_mut_step * math.exp(T_prim * bias + T * np.random.normal(0,T))
-
+            #new_mut_steps[i] = ((p1.mut_step[i] + p2.mut_step[i]) / 2) 
+            new_mut_steps[i] = round(pre_mut_step* math.exp(T_prim * bias + T * np.random.normal(0,T)), ndigits=6)
             if new_mut_steps[i] < threshold:
                 new_mut_steps[i] = threshold
+            print(f"new_mut_steps[{i}]",new_mut_steps[i])
+    print("new_mut_steps", new_mut_steps)
 
     return Chrom_N(new_genome, new_mut_steps, bias)
 
