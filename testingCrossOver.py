@@ -18,7 +18,7 @@ def results():
     #for folder in os.listdir(Tests_folder):
     #    foldername = os.fsdecode(folder)
     #    folder_list.append(foldername)
-    with open(path + '/try3_EA_1/results.csv','r') as f:
+    with open(path + '/EA_1_specials/results.csv','r') as f:
         data = np.genfromtxt(f, delimiter=',')
         df = pd.DataFrame(data.flatten())  
         #print(foldername)
@@ -32,10 +32,10 @@ def gather5BestForEachCross():
         #foldername = os.fsdecode(folder)
     
     
-    with open(path +'/try3_EA_1/results.csv','w') as final:
+    with open(path +'/EA_1_specials/results.csv','w') as final:
         writer = csv.writer(final)
         for i in range(1,6):
-            with open(path +f'/try3_EA_1/enemy_1/Run_{i}/best_5_f.csv','r') as f:
+            with open(path +f'/EA_1_specials/enemy_2-4/Run_{i}/best_5_f.csv','r') as f:
                 reader = csv.reader(f)
                 header = []
                 header = next(reader)

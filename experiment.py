@@ -24,7 +24,7 @@ def main():
     
     n_hidden_neurons=10
     '''Setting up environment for each enemy'''
-    env = Environment(enemies=[2,4],
+    env = Environment(enemies=[5,7],
                 multiplemode="yes",
                 playermode="ai",
                 player_controller=player_controller(n_hidden_neurons),
@@ -36,7 +36,7 @@ def main():
     champs=[]
     #Run Iteration
     for i in range(1,6):
-        os.system(f"python ./EA_1.py -o Run_{i} -e 2-4")
+        os.system(f"python ./EA_1_Killer.py -o Run_{i} -e 2-4")
         champ = np.load(f'EA_1/enemy_2-4/Run_'+str(i)+'/best_genome.npy')
         champs.append(champ)
     

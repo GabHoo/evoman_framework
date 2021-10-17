@@ -85,6 +85,10 @@ class Population(object):
         newlist = sorted(self.chrom_list, key=lambda x: x.fitness, reverse=True)
         return newlist.pop(0).fitness
     
+    def get_longest_time(self):
+        newlist = sorted(self.chrom_list, key=lambda x: x.time, reverse=True)
+        return newlist.pop(0).time
+    
     def get_fitness_mean(self):
         return np.mean(np.array([c.fitness for c in self.chrom_list]))
     
@@ -94,6 +98,51 @@ class Population(object):
     def mutation(self):
         for chrom in self.chrom_list:
             chrom.mutate()
+
+    def get_specials(self, last_best_fitness, last_longer_time):
+        specials = Population()
+        self.sort_by_fitness()
+        specials.chrom_list=self.chrom_list[:5]
+        for chrom in self.chrom_list:
+            if chrom not in specials:
+                if chrom.fitness > last_best_fitness:
+                    specials.add_chroms(chrom)
+                    print("We Have New Best!")
+
+                if chrom.p_life!=0 and chrom.e_life==0:
+                    specials.add_chroms(chrom)
+                    print("We have a Champion here!!")
+                    
+                else:
+                    if chrom.e_life == 0 or chrom.p_life != 0:
+                        rand_n =  random.uniform (0,1) 
+                        if rand_n < 0.3:
+                            specials.add_chroms(chrom)
+                            print("We Have A Special!")
+
+                    else:    
+                        if chrom.p_life==0 and chrom.time > last_longer_time:
+                            rand_n =  random.uniform (0,1) 
+                            if rand_n < 0.8:
+                                specials.add_chroms(chrom)
+                                print("We Have more Resistent guy here!")
+        return specials
+
+    def getKillers(self):
+        killers=Population()
+        for chrom in self.chrom_list:
+            if chrom.e_life == 0 :
+                print("We Have A Killer!")
+                killers.chrom_list.append(chrom)
+        return killers
+
+    def getSurvivors(self):
+        survivors=Population()
+        for chrom in self.chrom_list:
+            if chrom.p_life != 0 :
+                print("We Have A Killer!")
+                survivors.chrom_list.append(chrom)
+        return survivors
             
     def check_equal(self,pop):
         result = True
