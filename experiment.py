@@ -24,7 +24,7 @@ def main():
     
     n_hidden_neurons=10
     '''Setting up environment for each enemy'''
-    env = Environment(enemies=[1,2,3,4,5,6,7,8],
+    env = Environment(enemies=[2,4],
                 multiplemode="yes",
                 playermode="ai",
                 player_controller=player_controller(n_hidden_neurons),
@@ -35,9 +35,9 @@ def main():
                 logs="off")
     champs=[]
     #Run Iteration
-    for i in range(1,11):
-        os.system(f"python3 ./EA_1.py -o Run_{i} -e 1-2-3")
-        champ = np.load(f'EA_1/enemy_1-2-3/Run_'+str(i)+'/best_genome.npy')
+    for i in range(1,6):
+        os.system(f"python ./EA_1.py -o Run_{i} -e 2-4")
+        champ = np.load(f'EA_1/enemy_2-4/Run_'+str(i)+'/best_genome.npy')
         champs.append(champ)
     
     for j,c  in enumerate(champs):
@@ -48,7 +48,7 @@ def main():
             best_5_f.append(f)
 
         '''Storing 5 best fitnesses in best_5_f.csv file'''
-        with open(f'EA_1/enemy_1-2-3/Run_'+str(j+1)+'/best_5_f.csv','w') as f:
+        with open(f'EA_1/enemy_2-4/Run_'+str(j+1)+'/best_5_f.csv','w') as f:
             writer = csv.writer(f)
             writer.writerow(best_5_f)
                     

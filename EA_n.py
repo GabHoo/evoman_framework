@@ -60,10 +60,10 @@ T = 1/math.sqrt(2*math.sqrt(chrom_size))
 T_prim= 1/math.sqrt(2*chrom_size) 
 
 pop_size = 20  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
-n_offspring = pop_size*4 # this might be a big number 
+n_offspring = pop_size*2 # this might be a big number 
 
 #Stop criteria:
-n_iter = 20 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
+n_iter = 10 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
 #min_fit = 85 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
 
 

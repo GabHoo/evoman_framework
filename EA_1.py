@@ -57,11 +57,11 @@ step_max = 1 #max number mutation_step variable can assume
 
 T = 1/(chrom_size**0.5) 
 
-pop_size = 1  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
-n_offspring = pop_size*2 # this might be a big number 
+pop_size = 100  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+n_offspring = pop_size*4 # this might be a big number 
 
 #Stop criteria:
-n_iter = 1 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
+n_iter = 20 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
 #min_fit = 85 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
 
 
@@ -95,7 +95,7 @@ def old_crossover (p1, p2):
 
 
 def new_crossover (p1, p2):  
-    threshold = 0.01 #Minimum Value for the mut_step
+    threshold = 0.001 #Minimum Value for the mut_step
     j = 0.3 #mutation parameter 
     k = 0.2 #crossover type parameter
     
@@ -214,7 +214,7 @@ def main():
         testing_pop(offspring)
         new_gen = Population()
         
-        new_gen.chrom_list= pop.chrom_list+offspring.chrom_list #ALGORITHM 1 : PARENTS + KIDS
+        new_gen.chrom_list= offspring.chrom_list #ALGORITHM  : PARENTS , KIDS
         
         
         '''
