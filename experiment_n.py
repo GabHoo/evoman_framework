@@ -43,7 +43,7 @@ def main():
     for j,c  in enumerate(champs):
         best_5_f=[]
         print(f"EA_n, Running the best of run ",str(j+1)+" 5 times")
-        for z in range(0,5):               
+        for z in range(0,5):
             f,p,e,t=env.play(pcont=c)
             best_5_f.append(f)
 

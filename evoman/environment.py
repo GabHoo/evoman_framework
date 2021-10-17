@@ -474,8 +474,7 @@ class Environment(object):
             # updates objects and draws its itens on screen
             self.screen.fill((250,250,250))
             self.tilemap.update( 33 / 1000., self)
-            '''
-            self.tilemap.draw(self.screen)
+            """self.tilemap.draw(self.screen)
 
             # player life bar
             vbar = int(100 *( 1-(self.player.life/float(self.player.max_life)) ))
@@ -489,8 +488,9 @@ class Environment(object):
             pygame.draw.line(self.screen, (0,   0,   0), [590, 40],[695, 40], 2)
             pygame.draw.line(self.screen, (0,   0,   0), [590, 45],[695, 45], 5)
             pygame.draw.line(self.screen, (194,118,55),  [590, 45],[695 - vbar, 45], 5)
-            pygame.draw.line(self.screen, (0,   0,   0), [590, 49],[695, 49], 2)
-            '''
+            pygame.draw.line(self.screen, (0,   0,   0), [590, 49],[695, 49], 2)"""
+
+
             #gets fitness for training agents
             fitness = self.fitness_single()
 
