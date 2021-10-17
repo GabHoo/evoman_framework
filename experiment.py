@@ -36,7 +36,7 @@ def main():
     champs=[]
     #Run Iteration
     for i in range(1,11):
-        os.system(f"python ./EA_1.py -o Run_{i} -e 1-2-3")
+        os.system(f"python3 ./EA_1.py -o Run_{i} -e 1-2-3")
         champ = np.load(f'EA_1/enemy_1-2-3/Run_'+str(i)+'/best_genome.npy')
         champs.append(champ)
     
