@@ -2,7 +2,7 @@ import csv
 import os
 import pandas as pd
 import numpy as np
-path = "C:/Users/ASUS/Vs_workspace/VU/Evolutionary_Comp/evoman_framework"
+path = "C:\Users\ASUS\Vs_workspace\VU\Evolutionary_Comp\evoman_framework\Training_Best"
 
 def main():
     gather5BestForEachCross()
@@ -14,10 +14,11 @@ def results():
     folder_list=[]
     results_list=[]
 
-    #Tests_folder = os.fsencode(path)
-    #for folder in os.listdir(Tests_folder):
-    #    foldername = os.fsdecode(folder)
-    #    folder_list.append(foldername)
+    Tests_folder = os.fsencode(path)
+    for folder in os.listdir(Tests_folder):
+        foldername = os.fsdecode(folder)
+        folder_list.append(foldername)
+
     with open(path + '/EA_1_specials/results.csv','r') as f:
         data = np.genfromtxt(f, delimiter=',')
         df = pd.DataFrame(data.flatten())  

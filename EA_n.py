@@ -59,11 +59,11 @@ step_max = 1 #max number mutation_step variable can assume
 T = 1/math.sqrt(2*math.sqrt(chrom_size))
 T_prim= 1/math.sqrt(2*chrom_size) 
 
-pop_size = 20  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
-n_offspring = pop_size*2 # this might be a big number 
+pop_size = 100  # quantity of the population - number of chromosomes in our population, not changing during the experiment.
+n_offspring = pop_size*4 # this might be a big number 
 
 #Stop criteria:
-n_iter = 10 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
+n_iter = 20 # number of iterations we want to run the experiment for (set high for checking the fitness as a stop criterion)
 #min_fit = 85 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
 
 
@@ -104,7 +104,7 @@ def crossover (p1, p2):
             pre_mut_step = ((p1.mut_step[i] + p2.mut_step[i]) / 2)
 
             #s1’ (new, mutated s1) = s1_old * e ^ (T’ * BIAS + T * N(0,1))
-            new_mut_steps[i] = pre_mut_step * math.exp(T_prim * bias + T * np.random.normal(0,T))
+            new_mut_steps[i] = pre_mut_step * math.exp(T_prim * bias + np.random.normal(0,T))
 
             if new_mut_steps[i] < threshold:
                 new_mut_steps[i] = threshold
@@ -148,13 +148,13 @@ def main():
         count+=1
         print("\nGeneration: ", count)
         #evolution process:
-        #Perform crossover to get offsrping, and mutate it
+        #Perform crossover to get offsrping, and mutate them
         offspring = reproduction(pop)
-        testing_pop(offspring)
         new_gen = Population()
-        new_gen.chrom_list= offspring.chrom_list #ALGORITHM 1 : PARENTS + KIDS
-        new_gen.sort_by_fitness()
+        new_gen.chrom_list= offspring.chrom_list #ALGORITHM , : just KIDS
         #selecting the best half
+        testing_pop(new_gen)
+        new_gen.sort_by_fitness()
         new_gen = deterministic_selection(new_gen)   
 
         print( '\n GENERATION '+ str(count)+' Best: ' + str(round(new_gen.chrom_list[0].fitness,6))+' enemy_life: ' +str(round(pop.chrom_list[0].e_life,6))+' Mean: '+str(round(new_gen.get_fitness_mean(),6))+' Standard Deviation '+str(round(pop.get_fitness_STD(),6)))

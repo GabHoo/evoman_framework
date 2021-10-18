@@ -96,8 +96,8 @@ def old_crossover (p1, p2):
 
 def new_crossover (p1, p2):  
     threshold = 0.001 #Minimum Value for the mut_step
-    j = 0.3 #mutation parameter 
-    k = 0.2 #crossover type parameter
+    j = 0.3 
+    k = 0.2 
     
     #creating genome
     new_genome = np.empty(chrom_size)
@@ -114,7 +114,7 @@ def new_crossover (p1, p2):
     if new_mut_step < threshold:
         new_mut_step = threshold
 
-    return Chrom(new_genome, new_mut_step*np.random.normal(0,T))
+    return Chrom(new_genome, new_mut_step)
 
 '''
     def discrite_crossover(p1, p2):
@@ -188,6 +188,19 @@ def doomsday(pop,fit_pop):
     return pop,fit_pop
 '''  
 '''
+'''
+
+        Mix plus/comma selection IDEA
+
+        instead of having just one type,
+        we would start with one type and
+        than if there are no more improvments
+        we change to the other one. 
+
+        also we could start using the lack of improvments
+        to stop our algorithm, instead of a number of iterations
+
+        '''
 
 def main():
     
@@ -217,24 +230,12 @@ def main():
         new_gen.chrom_list= offspring.chrom_list #ALGORITHM  : PARENTS , KIDS
         
         
-        '''
-
-        Mix plus/comma selection IDEA
-
-        instead of having just one type,
-        we would start with one type and
-        than if there are no more improvments
-        we change to the other one. 
-
-        also we could start using the lack of improvments
-        to stop our algorithm, instead of a number of iterations
-
-        '''
+        
         new_gen.sort_by_fitness()
         #selecting the best half
         new_gen = deterministic_selection(new_gen)   
 
-        print( '\n GENERATION '+ str(count)+' Best: ' + str(round(new_gen.chrom_list[0].fitness,6))+' enemy_life: ' +str(round(pop.chrom_list[0].e_life,6))+' Mean: '+str(round(new_gen.get_fitness_mean(),6))+' Standard Deviation '+str(round(pop.get_fitness_STD(),6)))
+        print( '\n GENERATION '+ str(count)+' Best: ' + str(round(new_gen.chrom_list[0].fitness,6))+' enemy_life: ' +str(round(new_gen.chrom_list[0].e_life,6))+' Mean: '+str(round(new_gen.get_fitness_mean(),6))+' Standard Deviation '+str(round(new_gen.get_fitness_STD(),6)))
         
         if new_gen.get_best_fitness() > global_best.fitness:
                 global_best = new_gen.chrom_list[0]

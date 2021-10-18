@@ -31,8 +31,7 @@ class Chrom(object):
         return len(self.genome)
 
     def mutate(self):
-        gaus = np.random.normal(0, 1, self.get_size())
-        self.genome= self.genome + gaus*self.mut_step
+        self.genome= self.genome + self.mut_step*np.random.normal(0, 1, self.get_size())
         self.normalize()
 
     def normalize(self):

@@ -35,21 +35,24 @@ def main():
                 logs="off")
     champs=[]
     #Run Iteration
-    for i in range(1,11):
-        os.system(f"python ./EA_1.py -o Run_{i} -e 2-4")
-        champ = np.load(f'EA_1/enemy_2-4/Run_'+str(i)+'/best_genome.npy')
+    for i in range(1,6):
+        os.system(f"python ./EA_1.py -o Run_{i} -e 2-4-6-8")#######
+        champ = np.load(f'EA_1/enemy_2-4-6-8/Run_'+str(i)+'/best_genome.npy')
         champs.append(champ)
     
     for j,c  in enumerate(champs):
+        best_5_g=[]
         best_5_f=[]
         print(f"EA_1, Running the best of run ",str(j+1)+" 5 times")
         for z in range(0,5):               
             f,p,e,t=env.play(pcont=c)
-            best_5_f.append(f)
+            best_5_g.append(p-e)
+            best_5_f.append(f)##########
 
         '''Storing 5 best fitnesses in best_5_f.csv file'''
-        with open(f'EA_1/enemy_2-4/Run_'+str(j+1)+'/best_5_f.csv','w') as f:
+        with open(f'EA_1/enemy_2-4-6-8/Run_'+str(j+1)+'/best_5_gf.csv','w') as f:##########
             writer = csv.writer(f)
+            writer.writerow(best_5_g)
             writer.writerow(best_5_f)
                     
     print("--- %s seconds ---" % (time. time() - start_time))
