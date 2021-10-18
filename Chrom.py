@@ -41,14 +41,6 @@ class Chrom(object):
                 i=-1
             if i > 1:
                 i=1
-                
-    ''' 
-    def mutate2(self):
-        r_mut = 10 / self.get_size()  # mutation rate, how likely is it for a gene to mutate
-        for i in range(self.get_size()):
-            if random.random() < r_mut:
-                self.genome[i] = random.uniform(-1, 1)	'''
-   
 
                 
 class Population(object):
