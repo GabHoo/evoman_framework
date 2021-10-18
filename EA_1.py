@@ -19,7 +19,7 @@ parser.add_argument("-e","--enemy", help="Add the enemy list separated by dash",
 args=parser.parse_args()
 
 
-"""2. Setting up the enviroment"""
+"""Setting up the enviroment"""
 headless = True
 if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -48,7 +48,7 @@ env = Environment(experiment_name=experiment_name,
 # default environment fitness is assumed for experiment
 env.state_to_log() 
 
-"""3. Hyperparameters"""
+"""Hyperparameters"""
 #chrom parameters
 chrom_size = (env.get_num_sensors() + 1) * n_hidden_neurons + (n_hidden_neurons + 1) * 5
 dom_u = 1  # upper limit for a gene
@@ -65,7 +65,7 @@ n_iter = 20 # number of iterations we want to run the experiment for (set high f
 #min_fit = 85 # minimal fitness after achieving which we will stop the experiment (set high for running n iterations)
 
 
-"""4. Implementing functions"""
+"""Implementing functions"""
 
 #simulates a play in the game with given chrom
 def evaluate(chrom):
@@ -84,17 +84,7 @@ def testing_pop(pop):
 
 """Evolution fuctionss"""
 
-def old_crossover (p1, p2):  
-    new_genome = np.empty(chrom_size)
-    new_mut_step=((p1.mut_step + p2.mut_step) / 2)
-    for i in range(chrom_size):
-        new_genome[i] = (p1.genome[i] + p2.genome[i])/ 2 #mean value of his parents values of the very gene   
-    
-    return Chrom(new_genome, new_mut_step*np.random.normal(0,T))
-
-
-
-def new_crossover (p1, p2):  
+def crossover (p1, p2):  
     threshold = 0.001 #Minimum Value for the mut_step
     j = 0.3 #mutation parameter 
     k = 0.2 #crossover type parameter
@@ -114,27 +104,8 @@ def new_crossover (p1, p2):
     if new_mut_step < threshold:
         new_mut_step = threshold
 
-    return Chrom(new_genome, new_mut_step*np.random.normal(0,T))
-
-'''
-    def discrite_crossover(p1, p2):
-    threshold = 0.001 #Minimum Value for the mut_step
-
-    #creating genome
-    new_genome = np.empty(chrom_size)
-    for i in range(chrom_size):
-        rand_n =  random.uniform (0,1)
-        if rand_n < 0.5:
-            new_genome[i] = p1.genome[i]
-        else:
-            new_genome[i] = p2.genome[i]
-    #calculating mut_step
-    new_mut_step = ((p1.mut_step + p2.mut_step) / 2)* math.exp(np.random.normal(0,T))
-    if new_mut_step < threshold:
-        new_mut_step = threshold
-
     return Chrom(new_genome, new_mut_step)
-'''
+
 
 def reproduction(parents):
     offspring = Population()
@@ -142,7 +113,7 @@ def reproduction(parents):
         p1 = parents.chrom_list[random.randint(0,parents.get_size()-1)]
         p2 = parents.chrom_list[random.randint(0,parents.get_size()-1)]
         #HERE
-        c = new_crossover(p1, p2)
+        c = crossover(p1, p2)
         
         offspring.add_chroms(c)
     offspring.mutation()
@@ -153,53 +124,15 @@ def deterministic_selection(pop):
     pop.chrom_list = pop.chrom_list[:pop_size]
     return pop
 
-'''
-We can do smth like this, tell me if you agree
-'''
-
-'''
-IDEA
-
-function that iniside a population,
-will look at similar familys of fitness,
-and will eliminate some of those chroms
-
-To avoid having so many similar fitnesses
-
-
-'''
-# kills the worst genomes, and replace with new best/random solutions
-def doomsday(pop,fit_pop):
-
-    worst = int(pop_size/4)  # a quarter of the population
-    order = np.argsort(fit_pop)
-    orderasc = order[0:worst]
-
-    for o in orderasc:
-        for j in range(0,chrom_size):
-            pro = np.random.uniform(0,1)
-            if np.random.uniform(0,1)  <= pro:
-                pop[o][j] = np.random.uniform(dom_l, dom_u) # random dna, uniform dist.
-            else:
-                pop[o][j] = pop[order[-1:]][0][j] # dna from best
-
-        fit_pop[o]=evaluate([pop[o]])
-
-    return pop,fit_pop
-'''  
-'''
-
 def main():
     
-    #improvment = -1 #we set this to -1 bc the first imrpovment will for sure take place (line 206)
     count = 0
-
     pop = Population(pop_size,chrom_size,dom_l,dom_u)
     testing_pop(pop)
     pop.sort_by_fitness()
     global_best=pop.chrom_list[0]
 
-    print( '\n GENERATION '+str(count)+' Best: '+str(round(pop.chrom_list[0].fitness,6))+' enemy life: '+str(round(pop.chrom_list[0].e_life,6))+' Mean: '+str(round(pop.get_fitness_mean(),6))+' Standard Deviation '+str(round(pop.get_fitness_STD(),6)))
+    print('\n GENERATION '+str(count)+' Best: '+str(round(pop.chrom_list[0].fitness,6))+' enemy life: '+str(round(pop.chrom_list[0].e_life,6))+' Mean: '+str(round(pop.get_fitness_mean(),6))+' Standard Deviation '+str(round(pop.get_fitness_STD(),6)))
     
     archive=[]    
     for c in pop.chrom_list:
@@ -213,23 +146,7 @@ def main():
         offspring = reproduction(pop)
         testing_pop(offspring)
         new_gen = Population()
-        
         new_gen.chrom_list= offspring.chrom_list #ALGORITHM  : PARENTS , KIDS
-        
-        
-        '''
-
-        Mix plus/comma selection IDEA
-
-        instead of having just one type,
-        we would start with one type and
-        than if there are no more improvments
-        we change to the other one. 
-
-        also we could start using the lack of improvments
-        to stop our algorithm, instead of a number of iterations
-
-        '''
         new_gen.sort_by_fitness()
         #selecting the best half
         new_gen = deterministic_selection(new_gen)   
@@ -238,12 +155,13 @@ def main():
         
         if new_gen.get_best_fitness() > global_best.fitness:
                 global_best = new_gen.chrom_list[0]
-                #imrovment += 1
         
         pop = new_gen
         
         for c in pop.chrom_list:
             archive += [[c.fitness,c.p_life,c.e_life,c.time,count]]
+
+    '''Save Results'''
 
     file_best  = open(experiment_name+'/best.txt','w')
     file_best.write("The following best individual has scored a fitness of: "+str(round(global_best.fitness,6))+ "\n"+repr(global_best.genome))
@@ -261,8 +179,4 @@ def main():
 
     np.save(experiment_name+'/best_genome',global_best.genome)
 
-   
-    
-   
-    
 main()
